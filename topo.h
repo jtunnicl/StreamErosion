@@ -14,16 +14,19 @@ class Topo
 
 public:
 
-    Topo();
-
-    int nx, ny;                                   // Size of grid (elements)
+	int nx, ny;                                   // Size of grid (elements)
+	int xllcorner, yllcorner;
+	int nodata;
     int elems;                                    // x * y
     double deltax;                                // Grid spacing (meters)
+
     int year, month, day;
     int hour, minute, second;
     int lat, longit;                               // Coordinates for solar calcs
 
-    vector <vector <double> > topo;              // Topographic grid
+	typedef vector<vector<double>> Matrix;
+    Matrix topo;              // Topographic grid
+
     vector <vector <double> > topo2;             // Computation results raster
     vector <vector <double> > topoold;           // Value holder, when updating
     vector <vector <double> > slope;             // Topographic gradient
@@ -44,16 +47,22 @@ public:
     vector <double> ux, rx;                      // Neighbour pixels
     vector <double> uy, ry;                      // Neighbour pixels
 
+	// Functions
 
-    void loadMatrix(ifstream *is, const string& delim);
+	Topo();
+	Topo(const char* dem);
 
+	void loadDEM(ifstream& in, const string& delim);
     void setupgridneighbors();
-	
 	void indexX(int n, vector <double>& arr, vector<double>& indx);
 	void indexX();
+	static void PrintMatrix(const Matrix& mat, int nx, int ny);
+	static void PrintMatrixRow(const Matrix& mat, int nx, int row);
 
 	//void triDag(vector<double>& a, vector<double>& b, vector<double>& c, vector<double>& r, vector<double>& u);
 	void triDag();
+
+    //void loadMatrix(ifstream *is, const string& delim); // DEPRECATED
 
 };
 

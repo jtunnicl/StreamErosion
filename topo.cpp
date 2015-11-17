@@ -1,6 +1,8 @@
 #include "topo.h"
+#include "util.h"
 #include <iostream>
 #include <cstdlib>
+
 
 
 #define SWAP(a,b) itemp=(a);(a)=(b);(b)=itemp;
@@ -8,60 +10,78 @@
 #define NSTACK 100000
 
 
-Topo::Topo()
+Topo::Topo() : nx(0), ny(0), elems(0), deltax(0)
 {
-
-    nx = 100;
-    ny = 100;
-    elems = nx * ny;
-    deltax = 0;
-    ifstream in("putauaki.txt"); // Load matrix into memory
-
-    loadMatrix(&in, " ");
 
 }
 
-void Topo::loadMatrix(ifstream *in, const string& delim = " ")
+Topo::Topo(const char* dem)
 {
-    string line;
-    string strnum;
-    double number;
+	// try to open file
+	ifstream in(dem);
+	if (in)
+	{
+		loadDEM(in, " ");
+	}
+	else
+	{
+		string msg = "Unable to open file: '" + string(dem) + "'";
+		Util::Error(msg, 1);
+	}
 
-    // clear topo first
-    topo.clear();
+}
 
-    // parse line by line
-    while (getline(*in, line))
-    {
-        topo.push_back(vector<double>());
+void Topo::PrintMatrix(const Matrix& mat, int nx, int ny)
+{
+	for (int y = 0; y < ny; y++)
+	{
+		for (int x = 0; x < nx; x++)
+		{
+			cout << mat[x][y] << " ";
+		} 
+		cout << endl;
+	}
+}
 
-        for (string::const_iterator i = line.begin(); i != line.end(); ++ i)
-        {
-            // If i is not a delim, then append it to strnum
-            if (delim.find(*i) == string::npos)
-            {
-                strnum += *i;
-                if (i + 1 != line.end()) // If it's the last char, do not continue
-                    continue;
-            }
+void Topo::PrintMatrixRow(const Matrix& mat, int nx, int row)
+{
+	for (int x = 0; x < nx; x++)
+	{
+		cout << mat[x][row] << " ";
+	} 
+	cout << endl;
+}
 
-            // if strnum is still empty, it means the previous char is also a
-            // delim (several delims appear together). Ignore this char.
-            if (strnum.empty())
-                continue;
+void Topo::loadDEM(ifstream& in, const string& delim)
+{
+	string line;
 
-            // If we reach here, we got a number. Convert it to double.
-            number = stod(strnum);
-            topo.back().push_back(number);
+	// clear topo
+	topo.clear();
 
-            strnum.clear();
-        }
-    }
+	// read 6 lines of metadata
+	string key;
+	in >> key; in >> nx;
+	in >> key; in >> ny;
+	in >> key; in >> xllcorner;
+	in >> key; in >> yllcorner;
+	in >> key; in >> deltax;
+	in >> key; in >> nodata;
 
-    nx = static_cast<int>(topo.size());                // Assign dimension variables
-    ny = static_cast<int>(topo[0].size());
-    elems = nx * ny;
+	// init topo
+	topo = Matrix(nx, vector<double>(ny));
+	elems = nx * ny;
 
+	// read data
+	for (int y = 0; y < ny; y++)
+	{
+		for (int x = 0; x < nx; x++)
+		{
+			in >> topo[x][y];
+		}
+	}
+	//PrintMatrx(topo, nx, ny);
+	//PrintMatrixRow(topo, nx, ny-1);
 }
 
 void Topo::setupgridneighbors()
@@ -126,14 +146,56 @@ void Topo::indexX()
 
 void Topo::indexX(int n, vector<double> &arr, vector<double> &indx)
 {
-
-
 #undef M
 #undef NSTACK
 #undef SWAP
 }
 
+/*
+DEPRECATED
+void Topo::loadMatrix(ifstream *in, const string& delim = " ")
+{
+    string line;
+    string strnum;
+    double number;
 
+    // clear topo first
+    topo.clear();
+
+    // parse line by line
+    while (getline(*in, line))
+    {
+        topo.push_back(vector<double>());
+
+        for (string::const_iterator i = line.begin(); i != line.end(); ++ i)
+        {
+            // If i is not a delim, then append it to strnum
+            if (delim.find(*i) == string::npos)
+            {
+                strnum += *i;
+                if (i + 1 != line.end()) // If it's the last char, do not continue
+                    continue;
+            }
+
+            // if strnum is still empty, it means the previous char is also a
+            // delim (several delims appear together). Ignore this char.
+            if (strnum.empty())
+                continue;
+
+            // If we reach here, we got a number. Convert it to double.
+            number = stod(strnum);
+            topo.back().push_back(number);
+
+            strnum.clear();
+        }
+    }
+
+    nx = static_cast<int>(topo.size());                // Assign dimension variables
+    ny = static_cast<int>(topo[0].size());
+    elems = nx * ny;
+
+}
+*/
 
 
 
