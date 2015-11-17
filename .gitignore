@@ -44,9 +44,26 @@ Temporary Items
 
 # Object files
 *.o
-
-# Binaries
-stream
+*.obj
 
 # Logs
 *.log
+
+# Visual Studio
+# =============
+*.tlog
+*.res
+*.cache
+*.rc
+*.idb
+*.pdb
+*.suo
+*.ilk
+*.exe
+*.opensdf
+*.sdf
+*.manifest
+*.ipch
+*.lastbuildstate
+*.user
+*.filters
