@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <cmath>
+#include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -46,10 +48,12 @@ public:
     void loadMatrix(ifstream *is, const string& delim);
 
     void setupgridneighbors();
+	
+	void indexX(int n, vector <double>& arr, vector<double>& indx);
+	void indexX();
 
-    void indexX(int n, vector <double>& arr, vector<double>& indx);
-
-    void triDag();
+	//void triDag(vector<double>& a, vector<double>& b, vector<double>& c, vector<double>& r, vector<double>& u);
+	void triDag();
 
 };
 

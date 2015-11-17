@@ -1,7 +1,6 @@
 #include "topo.h"
-#include <cstdlib>
-#include <fstream>
 #include <iostream>
+#include <cstdlib>
 
 
 #define SWAP(a,b) itemp=(a);(a)=(b);(b)=itemp;
@@ -16,9 +15,9 @@ Topo::Topo()
     ny = 100;
     elems = nx * ny;
     deltax = 0;
-    ifstream *in('putauaki.txt');              // Load matrix into memory
+    ifstream in("putauaki.txt"); // Load matrix into memory
 
-    loadMatrix(in, " ");
+    loadMatrix(&in, " ");
 
 }
 
@@ -116,6 +115,13 @@ void Topo::triDag()  //ax,bx,cx,rx,ux,lattice_size_x
 
     for ( j = (n-2); j >= 0 ; j-- )
         ux[j] -= gam[j+1] * ux[j+1];
+}
+
+void Topo::indexX()
+{
+
+	cout << "Topo::indexX not implemented" << endl;
+	exit(1);
 }
 
 void Topo::indexX(int n, vector<double> &arr, vector<double> &indx)
