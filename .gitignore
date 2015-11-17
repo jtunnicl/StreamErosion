@@ -67,3 +67,7 @@ Temporary Items
 *.lastbuildstate
 *.user
 *.filters
+
+# Qt
+# =============
+qt/build-*
