@@ -74,16 +74,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\flowrouting.h" />
-    <ClInclude Include="..\..\..\streamerosion.h" />
-    <ClInclude Include="..\..\..\topo.h" />
+    <ClInclude Include="..\..\..\old\streampower.h" />
     <ClInclude Include="..\..\..\util.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\flowrouting.cpp" />
-    <ClCompile Include="..\..\..\main.cpp" />
-    <ClCompile Include="..\..\..\streamerosion.cpp" />
-    <ClCompile Include="..\..\..\topo.cpp" />
+    <ClCompile Include="..\..\..\old\streampower.cpp" />
     <ClCompile Include="..\..\..\util.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
