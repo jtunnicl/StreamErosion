@@ -3,7 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stream", "stream\stream.vcxproj", "{6A5F9AB6-7CCA-46B9-BA7C-AF84F85903FB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tests", "Tests\Tests.vcxproj", "{007ADAB4-5A30-4B4D-B53E-265016107BCD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C7028491-1F78-4CA5-96B2-B184AFB0692C}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		stream.vsmdi = stream.vsmdi
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = stream.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
@@ -13,6 +25,10 @@ Global
 		{6A5F9AB6-7CCA-46B9-BA7C-AF84F85903FB}.Debug|Win32.Build.0 = Debug|Win32
 		{6A5F9AB6-7CCA-46B9-BA7C-AF84F85903FB}.Release|Win32.ActiveCfg = Release|Win32
 		{6A5F9AB6-7CCA-46B9-BA7C-AF84F85903FB}.Release|Win32.Build.0 = Release|Win32
+		{007ADAB4-5A30-4B4D-B53E-265016107BCD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{007ADAB4-5A30-4B4D-B53E-265016107BCD}.Debug|Win32.Build.0 = Debug|Win32
+		{007ADAB4-5A30-4B4D-B53E-265016107BCD}.Release|Win32.ActiveCfg = Release|Win32
+		{007ADAB4-5A30-4B4D-B53E-265016107BCD}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

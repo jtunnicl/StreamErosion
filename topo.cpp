@@ -3,15 +3,40 @@
 #include <iostream>
 #include <cstdlib>
 
-
-
-#define SWAP(a,b) itemp=(a);(a)=(b);(b)=itemp;
-#define M 7
-#define NSTACK 100000
-
-
 Topo::Topo() : nx(0), ny(0), elems(0), deltax(0)
 {
+
+}
+
+void Topo::Init()
+{
+
+	// setup required data structures
+	// strat = todo
+	topo2 = vector<vector<double>>(ny, vector<double>(nx));
+	topoold = vector<vector<double>>(ny, vector<double>(nx));
+	slope = vector<vector<double>>(ny, vector<double>(nx));
+	flow1 = vector<vector<double>>(ny, vector<double>(nx));
+	flow2 = vector<vector<double>>(ny, vector<double>(nx));
+	flow3 = vector<vector<double>>(ny, vector<double>(nx));
+	flow4 = vector<vector<double>>(ny, vector<double>(nx));
+	flow5 = vector<vector<double>>(ny, vector<double>(nx));
+	flow6 = vector<vector<double>>(ny, vector<double>(nx));
+	flow7 = vector<vector<double>>(ny, vector<double>(nx));
+	flow8 = vector<vector<double>>(ny, vector<double>(nx));
+	topoVec = vector<vector<double>>(ny, vector<double>(nx));
+	vegState = vector<vector<double>>(ny, vector<double>(nx));
+	exposureAge = vector<vector<double>>(ny, vector<double>(nx));
+
+	topoVecInd = vector<int>(1, elems);
+
+	// Vectors to represent neighbour cells
+	vector<int> idown (nx + 1, 0);
+    vector<int> iup (nx + 1, 0);
+    vector<int> jdown (ny + 1, 0);
+    vector<int> jup (ny + 1 ,0);
+
+	SetupGridNeighbors();
 
 }
 
@@ -21,7 +46,8 @@ Topo::Topo(const char* dem)
 	ifstream in(dem);
 	if (in)
 	{
-		loadDEM(in, " ");
+		LoadDEM(in, " ");
+		Init();
 	}
 	else
 	{
@@ -31,29 +57,35 @@ Topo::Topo(const char* dem)
 
 }
 
-void Topo::PrintMatrix(const Matrix& mat, int nx, int ny)
+Topo::~Topo()
 {
-	for (int y = 0; y < ny; y++)
+
+}
+
+void Topo::PrintMatrix(const vector<vector<double>>& mat, int nrows, int ncols)
+{
+	for (int r = 0; r < nrows; r++)
 	{
-		for (int x = 0; x < nx; x++)
+		for (int c = 0; c < ncols; c++)
 		{
-			cout << mat[x][y] << " ";
+			cout << mat[r][c] << " ";
 		} 
 		cout << endl;
 	}
 }
 
-void Topo::PrintMatrixRow(const Matrix& mat, int nx, int row)
+void Topo::PrintMatrixRow(const vector<vector<double>>& mat, int row, int ncols)
 {
-	for (int x = 0; x < nx; x++)
+	for (int c = 0; c < ncols; c++)
 	{
-		cout << mat[x][row] << " ";
+		cout << mat[row][c] << " ";
 	} 
 	cout << endl;
 }
 
-void Topo::loadDEM(ifstream& in, const string& delim)
+void Topo::LoadDEM(ifstream& in, const string& delim)
 {
+	Util::Warning("Reading DEM without any checks or guarantees ...");
 	string line;
 
 	// clear topo
@@ -61,15 +93,15 @@ void Topo::loadDEM(ifstream& in, const string& delim)
 
 	// read 6 lines of metadata
 	string key;
-	in >> key; in >> nx;
-	in >> key; in >> ny;
+	in >> key; in >> nx; // ncols
+	in >> key; in >> ny; // nrows
 	in >> key; in >> xllcorner;
 	in >> key; in >> yllcorner;
 	in >> key; in >> deltax;
 	in >> key; in >> nodata;
 
 	// init topo
-	topo = Matrix(nx, vector<double>(ny));
+	topo = vector<vector<double>>(ny, vector<double>(nx));
 	elems = nx * ny;
 
 	// read data
@@ -77,32 +109,25 @@ void Topo::loadDEM(ifstream& in, const string& delim)
 	{
 		for (int x = 0; x < nx; x++)
 		{
-			in >> topo[x][y];
+			in >> topo[y][x];
 		}
 	}
-	//PrintMatrx(topo, nx, ny);
-	//PrintMatrixRow(topo, nx, ny-1);
+	//PrintMatrx(topo, ny, nx);
+	PrintMatrixRow(topo, ny-1, nx);
 }
 
-void Topo::setupgridneighbors()
+void Topo::SetupGridNeighbors()
 {
-    int i, j;
 
-    idown = vector <double>(nx);
-    iup = vector <double>(nx);
-    jup = vector <double>(ny);
-    jdown = vector <double>(ny);
-
-    for (i = 0; i <= nx; i++)
+    for (int i = 0; i <= nx; i++)
     {
         idown[i] = i - 1;
         iup[i] = i + 1;
     }
-
     idown[0] = 0;
     iup[nx] = nx;
 
-    for (j = 0; j <= ny; j++)
+    for (int j = 0; j <= ny; j++)
     {
         jdown[j] = j - 1;
         jup[j] = j + 1;
@@ -111,6 +136,7 @@ void Topo::setupgridneighbors()
     jup[ny] = ny;
 }
 
+/*
 void Topo::triDag()  //ax,bx,cx,rx,ux,lattice_size_x
 {
     int j;
@@ -136,20 +162,19 @@ void Topo::triDag()  //ax,bx,cx,rx,ux,lattice_size_x
     for ( j = (n-2); j >= 0 ; j-- )
         ux[j] -= gam[j+1] * ux[j+1];
 }
+*/
 
-void Topo::indexX()
+void Topo::triDag()
 {
+	Util::Error("Topo::triDag not implemented", 1);
+}
+void Topo::IndexX()
+{
+	//Util::Error("Topo::indexX not implemented", 1);
+	// sort topo and place sorted indices in topoVecInd
 
-	cout << "Topo::indexX not implemented" << endl;
-	exit(1);
 }
 
-void Topo::indexX(int n, vector<double> &arr, vector<double> &indx)
-{
-#undef M
-#undef NSTACK
-#undef SWAP
-}
 
 /*
 DEPRECATED

@@ -10,15 +10,26 @@
 
 using namespace std;
 
+typedef struct StreamErosionModelParameters {
+	int timestep;
+	int duration;
+	double U;		// Uplift, m/kyr
+	double K;		// Diffusion kyr^-1
+	double deltax;	// m
+	double deltah;
+	double thresh;	// 30 deg
+} Parameters;
+
 class StreamErosion
 {
 
-public:
+protected:
 
-    Topo q;
+    Topo* q;
+	Parameters p;
     int idum;
-    int timestep, printinternval, duration;
-    double U, K, deltax, thresh;
+	int time;
+	int printinternval;
 
     float ran3(int *idum);
     float gasdev(int *idum);
@@ -26,9 +37,12 @@ public:
     void avalanche( );
     void hillslopediffusioninit(Topo *q, int i, int j );
 
+public:
+
     StreamErosion();
-    StreamErosion(Topo* q);
+    StreamErosion(Topo* q, Parameters& p);
     ~StreamErosion();
+	void Start();
 
 };
 

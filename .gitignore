@@ -44,7 +44,7 @@ Temporary Items
 
 # Object files
 *.o
-*.obj
+
 
 # Logs
 *.log
@@ -67,6 +67,12 @@ Temporary Items
 *.lastbuildstate
 *.user
 *.filters
+*.dll
+*.metagen
+*.obj
+*.trx
+*.pch
+*.bi
 
 # Qt
 # =============

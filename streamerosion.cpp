@@ -9,6 +9,7 @@
 
 #include "streamerosion.h"
 #include "flowrouting.h"
+#include "util.h"
 //#include "ui_mainwindow.h"
 //#include <QDebug>
 //#include <QDesktopWidget>
@@ -140,7 +141,7 @@ void StreamErosion::hillslopediffusioninit(Topo *q, int i, int j)
 
     float D = 10000000.0;
     int count = 0;
-    float term1 = D / (deltax * deltax);
+    float term1 = D / (p.deltax * p.deltax);
 
 
     for ( i = 1; i <= q->nx; i++)
@@ -234,87 +235,42 @@ StreamErosion::~StreamErosion()
 
 }
 
-StreamErosion::StreamErosion(Topo *q)
+void StreamErosion::Start()
 {
+	Util::Error("StreamErosion::Start() Not implemented", 1);
 
-    int idum = -678;
-    int i, j, max, t;
-    int time = 1;
-    int printinterval = 100;
-    int timestep = 1;                  // kyr
-    int duration = 1000;
-
-    double U = 1;                      // Uplift, m/kyr
-    double K = 0.05;                   // Diffusion kyr^-1
-    double deltax = 200.0;             // m
-    double deltah = 0.0;
-    double thresh = 0.58 * deltax;     // 30 deg
-
-    // Topographic matrix
-    vector < vector < double > > topo;           // Model Domain
-
-    // ASCII raster file
-    ifstream is("putauaki.txt");
-
-    //q->load_matrix(&is, &topo, " ");
-    q->loadMatrix(&is, " ");
-    q->ny = static_cast<int>(topo.size());                 // size of y
-    q->nx = static_cast<int>(topo[0].size());              // size of x
-
-    // Vectors to represent neighbour cells
-    vector <int> idown (q->nx + 1, 0);
-    vector <int> iup (q->nx + 1, 0);
-    vector <int> jdown (q->ny + 1, 0);
-    vector <int> jup (q->ny + 1 ,0);
-
-    // Topo matrices
-    //vector < vector < double > > topo (q->ny, vector<double>(q->nx));
-    vector < vector < double > > topo2 (q->ny, vector<double>(q->nx));
-    vector < vector < double > > topoold (q->ny, vector<double>(q->nx));
-
-    vector < vector < double > > slope (q->ny, vector<double>(q->nx));
-    vector < vector < double > > flow (q->ny, vector<double>(q->nx));
-    vector < vector < double > > flow1 (q->ny, vector<double>(q->nx));
-    vector < vector < double > > flow2 (q->ny, vector<double>(q->nx));
-    vector < vector < double > > flow3 (q->ny, vector<double>(q->nx));
-    vector < vector < double > > flow4 (q->ny, vector<double>(q->nx));
-    vector < vector < double > > flow5 (q->ny, vector<double>(q->nx));
-    vector < vector < double > > flow6 (q->ny, vector<double>(q->nx));
-    vector < vector < double > > flow7 (q->ny, vector<double>(q->nx));
-    vector < vector < double > > flow8 (q->ny, vector<double>(q->nx));
-
-    vector < double > topovec ( q->nx * q->ny, 0 );
-    vector < int > topovecind ( q->nx * q->ny, 0 );
-
-    //setupColorMapDemo(ui->customPlot, &matrix);
-    //setWindowTitle("Stream Erosion");
-    //statusBar()->clearMessage();
-
-    //q->setupgridneighbors( q->nx, q->ny, &idown, &iup, &jdown, &jup );
-    q->setupgridneighbors();
-	
-  //   ******  Start Run  ******   //
-
-    while ( time < duration )
-    {                    
-        for ( j = 1; j <= q->ny ; j++)                         // perform landsliding //
-          for (i = 1; i <= q->nx; i++)
-              topovec[ (j-1) * q->nx+i ] = topo[i][j];
+	while ( time < p.duration )
+	{                
+		// perform landsliding //
+		for (int j = 1; j <= q->ny ; j++)    
+		{
+			for (int i = 1; i <= q->nx; i++)
+			{
+				//q->topoVec[ (j-1) * q->nx+i ] = q->topo[i][j];
+				q->topoVec[j-1][i] = q->topo[i][j];
+			}
+		}
 
         //Indexx( topovec );
-        q->indexX();
+        q->IndexX();
 
-        t = 0;
-        while ( t < q->nx * q->ny )
-        {
-            t++;
-            i = ( topovecind[t] ) % q->nx;
-            if ( i==0 ) i = q->nx;
-            j = ( topovecind[t] ) / q->nx+1;
-            if ( i==q->nx ) j--;
+
+		int i, j;
+		for (int t = 1; t < q->elems; t++)
+		{
+            i = q->topoVecInd[t] % q->nx;
+            if ( i == 0 )
+			{
+				i = q->nx;
+			}
+
+            j = q->topoVecInd[t] / q->nx+1;
+            if ( i == q->nx )
+			{
+				j--;
+			}
             //avalanche( &topo, &idown, &iup, &jdown, &jup, thresh, i, j );                                 // Call to avalance subroutine
 			avalanche();
-
 	
         }
 
@@ -403,5 +359,21 @@ StreamErosion::StreamErosion(Topo *q)
 //                    }
 //        }
     }
+}
+
+StreamErosion::StreamErosion(Topo* q, Parameters& p) : q(q), p(p)
+{
+
+    idum = -678;
+    int i, j, max, t;
+    int time = 1;
+    int printinterval = 100;
+
+    //setupColorMapDemo(ui->customPlot, &matrix);
+    //setWindowTitle("Stream Erosion");
+    //statusBar()->clearMessage();
+	
+	Start();
+
 }
 

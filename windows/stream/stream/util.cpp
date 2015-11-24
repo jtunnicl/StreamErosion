@@ -1,6 +1,5 @@
 #include "util.h"
 
-
 void Util::Error(string message, int exit_code)
 {
 	cerr << "ERROR: " << message << endl;
