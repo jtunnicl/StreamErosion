@@ -72,6 +72,7 @@ Temporary Items
 *.trx
 *.pch
 *.bi
+*.asm
 
 # Qt
 # =============
