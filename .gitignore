@@ -54,7 +54,6 @@ Temporary Items
 *.tlog
 *.res
 *.cache
-*.rc
 *.idb
 *.pdb
 *.suo
