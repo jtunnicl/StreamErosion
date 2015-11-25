@@ -9,13 +9,19 @@ using namespace	Microsoft::VisualStudio::TestTools::UnitTesting;
 namespace Tests
 {
 	[TestClass]
-	public ref class UnitTest1
+	public ref class Dummy
 	{
 	public: 
 		[TestMethod]
-		void TestMethod1()
+		void ShouldFail()
 		{
 			Assert::AreEqual(StreamPower::Count(), 3);
+		}
+
+		[TestMethod]
+		void ShouldPass()
+		{
+			Assert::AreEqual(StreamPower::Count(), 2);
 		}
 	};
 }
