@@ -53,8 +53,6 @@ std::vector<float> StreamPower::Vector(int nl, int nh)
 	return std::vector<float>(size);
 }
 
-
-
 int *ivector(int nl, int nh)
 /* allocate an int vector with subscript range v[nl..nh] */
 {
@@ -82,12 +80,20 @@ std::vector<int> StreamPower::IVector(int nl, int nh)
 	return std::vector<int>(size);
 }
 
+/*
+	We don't need to manually free vectors based on std::vector
+	so we don't need to duplicate this method
+*/
 void free_ivector(int *v, long nl, long nh)
 /* free an int vector allocated with ivector() */
 {
 	free((FREE_ARG)(v + nl - NR_END));
 }
 
+/*
+	We don't need to manually free vectors based on std::vector
+	so we don't need to duplicate this method
+*/
 void free_vector(float *v, long nl, long nh)
 /* free an int vector allocated with ivector() */
 {
@@ -111,6 +117,34 @@ int **imatrix(long nrl, long nrh, long ncl, long nch)
 	for (i = nrl + 1; i <= nrh; i++) m[i] = m[i - 1] + ncol;
 
 	return m;
+}
+
+int** StreamPower::imatrix(long nrl, long nrh, long ncl, long nch)
+/*	allocate a int matrix with subscript range m[nrl..nrh][ncl..nch]
+	NOTE: changed from malloc to calloc to allow testing of value initialisation with std::vector
+*/
+{
+	long i, nrow = nrh - nrl + 1, ncol = nch - ncl + 1;
+	int **m;
+
+	m = (int **)calloc((size_t)(nrow + NR_END), sizeof(int*));
+	m += NR_END;
+	m -= nrl;
+
+	m[nrl] = (int *)calloc((size_t)(nrow*ncol + NR_END), sizeof(int));
+	m[nrl] += NR_END;
+	m[nrl] -= ncl;
+
+	for (i = nrl + 1; i <= nrh; i++) m[i] = m[i - 1] + ncol;
+
+	return m;
+}
+
+std::vector<std::vector<int>> StreamPower::IMatrix(int nrl, int nrh, int ncl, int nch)
+{
+	int rsize = nrh - nrl + 1 + NR_END;
+	int csize = nch - ncl + 1 + NR_END;
+	return std::vector<std::vector<int>>(rsize, std::vector<int>(csize));
 }
 
 float **matrix(long nrl, long nrh, long ncl, long nch)
