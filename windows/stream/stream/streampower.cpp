@@ -166,7 +166,33 @@ float **matrix(long nrl, long nrh, long ncl, long nch)
 	return m;
 }
 
+float** StreamPower::matrix(long nrl, long nrh, long ncl, long nch)
+/*	allocate a float matrix with subscript range m[nrl..nrh][ncl..nch]
+	NOTE: changed from malloc to calloc to allow testing of value initialisation with std::vector
+*/
+{
+	long i, nrow = nrh - nrl + 1, ncol = nch - ncl + 1;
+	float **m;
 
+	m = (float **)calloc((size_t)(nrow + NR_END), sizeof(float*));
+	m += NR_END;
+	m -= nrl;
+
+	m[nrl] = (float *)calloc((size_t)(nrow*ncol + NR_END), sizeof(float));
+	m[nrl] += NR_END;
+	m[nrl] -= ncl;
+
+	for (i = nrl + 1; i <= nrh; i++) m[i] = m[i - 1] + ncol;
+
+	return m;
+}
+
+std::vector<std::vector<float>> StreamPower::Matrix(int nrl, int nrh, int ncl, int nch)
+{
+	int rsize = nrh - nrl + 1 + NR_END;
+	int csize = nch - ncl + 1 + NR_END;
+	return std::vector<std::vector<float>>(rsize, std::vector<float>(csize));
+}
 
 float ran3(int* idum)
 {
@@ -211,6 +237,50 @@ float ran3(int* idum)
 #undef MZ
 #undef FAC
 */
+
+float StreamPower::ran3(int* idum)
+{
+	static int inext, inextp;
+	static long ma[56];
+	static int iff = 0;
+	long mj, mk;
+	int i, ii, k;
+
+	if (*idum < 0 || iff == 0) {
+		iff = 1;
+		mj = MSEED - (*idum < 0 ? -*idum : *idum);
+		mj %= MBIG;
+		ma[55] = mj;
+		mk = 1;
+		for (i = 1; i <= 54; i++) {
+			ii = (21 * i) % 55;
+			ma[ii] = mk;
+			mk = mj - mk;
+			if (mk < MZ) mk += MBIG;
+			mj = ma[ii];
+		}
+		for (k = 1; k <= 4; k++)
+			for (i = 1; i <= 55; i++) {
+				ma[i] -= ma[1 + (i + 30) % 55];
+				if (ma[i] < MZ) ma[i] += MBIG;
+			}
+		inext = 0;
+		inextp = 31;
+		*idum = 1;
+	}
+	if (++inext == 56) inext = 1;
+	if (++inextp == 56) inextp = 1;
+	mj = ma[inext] - ma[inextp];
+	if (mj < MZ) mj += MBIG;
+	ma[inext] = mj;
+	return mj*FAC;
+}
+
+float StreamPower::Ran3(std::default_random_engine& generator, std::normal_distribution<float>& distribution)
+{
+	return distribution(generator);
+}
+
 float gasdev(int* idum)
 {
 	static int iset = 0;
