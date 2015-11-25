@@ -64,6 +64,24 @@ int *ivector(int nl, int nh)
 	return v - nl + NR_END;
 }
 
+int* StreamPower::ivector(int nl, int nh)
+/*	allocate a float vector with subscript range v[nl..nh]
+NOTE: changed from malloc to calloc to allow testing of value initialisation with std::vector
+*/
+{
+	int *v;
+
+	v = (int *)calloc((unsigned int)(nh - nl + 1 + NR_END), sizeof(int));
+	return v - nl + NR_END;
+}
+
+/* allocate a float vector with subscript range v[nl..nh] */
+std::vector<int> StreamPower::IVector(int nl, int nh)
+{
+	int size = nh - nl + 1 + NR_END;
+	return std::vector<int>(size);
+}
+
 void free_ivector(int *v, long nl, long nh)
 /* free an int vector allocated with ivector() */
 {

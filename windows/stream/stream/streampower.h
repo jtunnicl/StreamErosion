@@ -17,7 +17,8 @@ public:
 	static float* vector(int nl, int nh);				// old implementation
 	static std::vector<float> Vector(int nl, int nh);	// new implementation
 
-
+	static int* ivector(int nl, int nh);				// old implementation
+	static std::vector<int> IVector(int nl, int nh);	// new implementation
 };
 
 #endif

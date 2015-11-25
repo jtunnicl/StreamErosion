@@ -36,5 +36,18 @@ namespace Tests
 			Assert::AreEqual(v_old[nl], v_new[nl]);
 			Assert::AreEqual(v_new[nh], v_new[nh]);;
 		}
+
+		[TestMethod]
+		void TestIntVectorCreation()
+		{
+			int nl = 1;
+			int nh = 10;
+			int* v_old = StreamPower::ivector(nl, nh);
+			std::vector<int> v_new = StreamPower::IVector(nl, nh);
+
+			// check first and last index
+			Assert::AreEqual(v_old[nl], v_new[nl]);
+			Assert::AreEqual(v_new[nh], v_new[nh]);;
+		}
 	};
 }
