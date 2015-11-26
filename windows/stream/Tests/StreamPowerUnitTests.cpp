@@ -99,7 +99,7 @@ namespace Tests
 			unsigned int trials = 1e6;
 			float tolerance = 1e-3;
 			std::default_random_engine generator;
-			std::normal_distribution<float> distribution(0.5f, 0.288f);
+			std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
 
 			std::vector<float> v_old = std::vector<float>(trials);
 			std::vector<float> v_new = std::vector<float>(trials);
@@ -134,8 +134,49 @@ namespace Tests
 
 			Assert::AreEqual(mean_old, mean_new, tolerance);
 			Assert::AreEqual(stdev_old, stdev_new, tolerance);
+		}
 
+		[TestMethod]
+		void TestGasdev()
+		{
+			unsigned int trials = 1e6;
+			float tolerance = 1e-2;
+			std::default_random_engine generator;
+			std::normal_distribution<float> distribution(0.0f, 1.0f);
 
+			std::vector<float> v_old = std::vector<float>(trials);
+			std::vector<float> v_new = std::vector<float>(trials);
+
+			int idum;
+			for (int i = 0; i < trials; i++)
+			{
+				v_old[i] = StreamPower::gasdev(&idum);
+				v_new[i] = StreamPower::Gasdev(generator, distribution);
+			}
+
+			Assert::AreEqual(trials, v_old.size());
+			Assert::AreEqual(trials, v_new.size());
+
+			// mean
+			float mean_old = std::accumulate(v_old.begin(), v_old.end(), 0.0f) / v_old.size();
+			float mean_new = std::accumulate(v_new.begin(), v_new.end(), 0.0f) / v_new.size();
+
+			// variance
+			std::vector<float> diff_old = std::vector<float>(trials);
+			std::vector<float> diff_new = std::vector<float>(trials);
+			float d_old, d_new;
+			for (int i = 0; i < trials; i++)
+			{
+				d_old = v_old[i] - mean_old;
+				d_new = v_new[i] - mean_new;
+				diff_old[i] = d_old * d_old;
+				diff_new[i] = d_new * d_new;
+			}
+			float stdev_old = sqrt(std::accumulate(diff_old.begin(), diff_old.end(), 0.0f) / diff_old.size());
+			float stdev_new = sqrt(std::accumulate(diff_new.begin(), diff_new.end(), 0.0f) / diff_new.size());
+
+			Assert::AreEqual(mean_old, mean_new, tolerance);
+			Assert::AreEqual(stdev_old, stdev_new, tolerance);
 		}
 	};
 }

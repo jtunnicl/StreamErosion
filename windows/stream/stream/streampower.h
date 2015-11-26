@@ -27,7 +27,10 @@ public:
 	static std::vector<std::vector<int>> IMatrix(int nrl, int nrh, int ncl, int nch);		// new implementation
 
 	static float ran3(int* idum);	// old implementation
-	static float Ran3(std::default_random_engine& generator, std::normal_distribution<float>& distribution);	// new implementation
+	static float Ran3(std::default_random_engine& generator, std::uniform_real_distribution<float>& distribution);	// new implementation
+
+	static float gasdev(int* idnum);	// old implementation
+	static float Gasdev(std::default_random_engine& generator, std::normal_distribution<float>& distribution);				// new implementation
 };
 
 #endif

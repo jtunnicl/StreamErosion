@@ -240,6 +240,10 @@ float ran3(int* idum)
 
 float StreamPower::ran3(int* idum)
 {
+/*
+	Assuming this is supposed to produce a uniform random number between 0 and 1
+	as in http://cics.umd.edu/~lee/z/h1/w/src_jpl/ran3.F
+*/
 	static int inext, inextp;
 	static long ma[56];
 	static int iff = 0;
@@ -276,7 +280,7 @@ float StreamPower::ran3(int* idum)
 	return mj*FAC;
 }
 
-float StreamPower::Ran3(std::default_random_engine& generator, std::normal_distribution<float>& distribution)
+float StreamPower::Ran3(std::default_random_engine& generator, std::uniform_real_distribution<float>& distribution)
 {
 	return distribution(generator);
 }
@@ -305,7 +309,44 @@ float gasdev(int* idum)
 	}
 }
 
+float StreamPower::gasdev(int* idum)
+{
+	static int iset = 0;
+	static float gset;
+	float fac, r, v1, v2;
+	//float ran3();
 
+	if (iset == 0)
+	{
+		do
+		{
+			v1 = 2.0*StreamPower::ran3(idum) - 1.0;
+			v2 = 2.0*StreamPower::ran3(idum) - 1.0;
+			r = v1*v1 + v2*v2;
+		} while (r >= 1.0);
+		fac = sqrt(-2.0*log(r) / r);
+		gset = v1*fac;
+		iset = 1;
+		return v2*fac;
+	}
+	else
+	{
+		iset = 0;
+		return gset;
+	}
+}
+
+float StreamPower::Gasdev(std::default_random_engine& generator, std::normal_distribution<float>& distribution)
+{
+/*
+	Assuming this is the same code from here: http://www.stat.berkeley.edu/~paciorek/diss/code/regression.binomial/gasdev.C
+	We need to return a standard, normally distributed gaussian random number
+*/
+
+	return distribution(generator);
+
+
+}
 
 void indexx(int n, float* arr, int* indx)
 {
