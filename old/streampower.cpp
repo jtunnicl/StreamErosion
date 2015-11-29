@@ -1,22 +1,31 @@
-#include<malloc.h>
-#include<math.h>
-#include<stdio.h>
-#include<stdlib.h>
+//#include<malloc.h>
+#include<cmath>
+#include<cstdio>
+#include<cstdlib>
+#include "streampower.h"
 
 #define FREE_ARG char*
 #define NR_END 1
 
-#define sqrt2 1.414213562373
-#define oneoversqrt2 0.707106781186
-#define fillincrement 0.01
+#define MBIG 1000000000
+#define MSEED 161803398
+#define MZ 0
+#define FAC (1.0/MBIG)
+
+#define SWAP(a,b) itemp=(a);(a)=(b);(b)=itemp;
+#define M 7
+#define NSTACK 100000
+
+#define sqrt2 1.414213562373f
+#define oneoversqrt2 0.707106781186f
+#define fillincrement 0.01f
 
 float **flow1,**flow2,**flow3,**flow4,**flow5,**flow6,**flow7,**flow8,**flow;
 float **topo,**topoold,**topo2,**slope,deltax,*ax,*ay,*bx,*by,*cx,*cy,*ux,*uy;
-float *rx,*ry,U,K,D,**slope,timestep,*topovec,thresh,thresholdarea;
+float *rx,*ry,U,K,D,timestep,*topovec,thresh,thresholdarea;
 int *topovecind,lattice_size_x,lattice_size_y,*iup,*idown,*jup,*jdown;
 
-float *vector(nl,nh)
-long nh,nl;
+float *vector(int nl, int nh)
 /* allocate a float vector with subscript range v[nl..nh] */
 {
         float *v;
@@ -25,8 +34,7 @@ long nh,nl;
         return v-nl+NR_END;
 }
 
-int *ivector(nl,nh)
-long nh,nl;
+int *ivector(int nl, int nh)
 /* allocate an int vector with subscript range v[nl..nh] */
 {
         int *v;
@@ -85,13 +93,9 @@ float **matrix(long nrl, long nrh, long ncl, long nch)
 	return m;
 }
 
-#define MBIG 1000000000
-#define MSEED 161803398
-#define MZ 0
-#define FAC (1.0/MBIG)
 
-float ran3(idum)
-int *idum;
+
+float ran3(int* idum)
 {
         static int inext,inextp;
         static long ma[56];
@@ -128,19 +132,18 @@ int *idum;
         ma[inext]=mj;
         return mj*FAC;
 }
-
+/*
 #undef MBIG
 #undef MSEED
 #undef MZ
 #undef FAC
-
-float gasdev(idum)
-int *idum;
+*/
+float gasdev(int* idum)
 {
         static int iset=0;
         static float gset;
         float fac,r,v1,v2;
-        float ran3();
+        //float ran3();
 
         if  (iset == 0) {
                 do {
@@ -158,13 +161,9 @@ int *idum;
         }
 }
 
-#define SWAP(a,b) itemp=(a);(a)=(b);(b)=itemp;
-#define M 7
-#define NSTACK 100000
 
-void indexx(n,arr,indx)
-float arr[];
-int indx[],n;
+
+void indexx(int n, float* arr, int* indx)
 {
         unsigned long i,indxt,ir=n,itemp,j,k,l=1;
         int jstack=0,*istack;
@@ -190,13 +189,13 @@ int indx[],n;
                         k=(l+ir) >> 1;
                         SWAP(indx[k],indx[l+1]);
                         if (arr[indx[l+1]] > arr[indx[ir]]) {
-                                SWAP(indx[l+1],indx[ir])
+                                SWAP(indx[l+1],indx[ir]);
                         }
                         if (arr[indx[l]] > arr[indx[ir]]) {
-                                SWAP(indx[l],indx[ir])
+                                SWAP(indx[l],indx[ir]);
                         }
                         if (arr[indx[l+1]] > arr[indx[l]]) {
-                                SWAP(indx[l+1],indx[l])
+                                SWAP(indx[l+1],indx[l]);
                         }
                         i=l+1;
                         j=ir;
@@ -224,9 +223,11 @@ int indx[],n;
         }
         free_ivector(istack,1,NSTACK);
 }
+/*
 #undef M
 #undef NSTACK
 #undef SWAP
+*/
 
 void tridag(float a[], float b[], float c[], float r[], float u[],
 	unsigned long n)
@@ -265,8 +266,7 @@ void setupgridneighbors()
      jup[lattice_size_y]=lattice_size_y;
 }
 
-void fillinpitsandflats(i,j)
-int i,j;
+void fillinpitsandflats(int i, int j)
 {    float min;
 
      min=topo[i][j];
@@ -291,50 +291,50 @@ int i,j;
        fillinpitsandflats(iup[i],jdown[j]);}
 }
 
-void mfdflowroute(i,j)
-int i,j;
+void mfdflowroute(int i, int j)
+
 {    float tot;
 
      tot=0;
      if (topo[i][j]>topo[iup[i]][j])
-      tot+=pow(topo[i][j]-topo[iup[i]][j],1.1);
+      tot+=pow(topo[i][j]-topo[iup[i]][j],1.1f);
      if (topo[i][j]>topo[idown[i]][j])
-      tot+=pow(topo[i][j]-topo[idown[i]][j],1.1);
+      tot+=pow(topo[i][j]-topo[idown[i]][j],1.1f);
      if (topo[i][j]>topo[i][jup[j]])
-      tot+=pow(topo[i][j]-topo[i][jup[j]],1.1);
+      tot+=pow(topo[i][j]-topo[i][jup[j]],1.1f);
      if (topo[i][j]>topo[i][jdown[j]])
-      tot+=pow(topo[i][j]-topo[i][jdown[j]],1.1);
+      tot+=pow(topo[i][j]-topo[i][jdown[j]],1.1f);
      if (topo[i][j]>topo[iup[i]][jup[j]])
-      tot+=pow((topo[i][j]-topo[iup[i]][jup[j]])*oneoversqrt2,1.1);
+      tot+=pow((topo[i][j]-topo[iup[i]][jup[j]])*oneoversqrt2,1.1f);
      if (topo[i][j]>topo[iup[i]][jdown[j]])
-      tot+=pow((topo[i][j]-topo[iup[i]][jdown[j]])*oneoversqrt2,1.1);
+      tot+=pow((topo[i][j]-topo[iup[i]][jdown[j]])*oneoversqrt2,1.1f);
      if (topo[i][j]>topo[idown[i]][jup[j]])
-      tot+=pow((topo[i][j]-topo[idown[i]][jup[j]])*oneoversqrt2,1.1);
+      tot+=pow((topo[i][j]-topo[idown[i]][jup[j]])*oneoversqrt2,1.1f);
      if (topo[i][j]>topo[idown[i]][jdown[j]])
-      tot+=pow((topo[i][j]-topo[idown[i]][jdown[j]])*oneoversqrt2,1.1);
+      tot+=pow((topo[i][j]-topo[idown[i]][jdown[j]])*oneoversqrt2,1.1f);
      if (topo[i][j]>topo[iup[i]][j])
-      flow1[i][j]=pow(topo[i][j]-topo[iup[i]][j],1.1)/tot;
+      flow1[i][j]=pow(topo[i][j]-topo[iup[i]][j],1.1f)/tot;
        else flow1[i][j]=0;
      if (topo[i][j]>topo[idown[i]][j])
-      flow2[i][j]=pow(topo[i][j]-topo[idown[i]][j],1.1)/tot;
+      flow2[i][j]=pow(topo[i][j]-topo[idown[i]][j],1.1f)/tot;
        else flow2[i][j]=0;
      if (topo[i][j]>topo[i][jup[j]])
-      flow3[i][j]=pow(topo[i][j]-topo[i][jup[j]],1.1)/tot;
+      flow3[i][j]=pow(topo[i][j]-topo[i][jup[j]],1.1f)/tot;
        else flow3[i][j]=0;
      if (topo[i][j]>topo[i][jdown[j]])
-      flow4[i][j]=pow(topo[i][j]-topo[i][jdown[j]],1.1)/tot;
+      flow4[i][j]=pow(topo[i][j]-topo[i][jdown[j]],1.1f)/tot;
        else flow4[i][j]=0;
      if (topo[i][j]>topo[iup[i]][jup[j]])
-      flow5[i][j]=pow((topo[i][j]-topo[iup[i]][jup[j]])*oneoversqrt2,1.1)/tot;
+      flow5[i][j]=pow((topo[i][j]-topo[iup[i]][jup[j]])*oneoversqrt2,1.1f)/tot;
        else flow5[i][j]=0;
      if (topo[i][j]>topo[iup[i]][jdown[j]])
-      flow6[i][j]=pow((topo[i][j]-topo[iup[i]][jdown[j]])*oneoversqrt2,1.1)/tot;
+      flow6[i][j]=pow((topo[i][j]-topo[iup[i]][jdown[j]])*oneoversqrt2,1.1f)/tot;
        else flow6[i][j]=0;
      if (topo[i][j]>topo[idown[i]][jup[j]])
-      flow7[i][j]=pow((topo[i][j]-topo[idown[i]][jup[j]])*oneoversqrt2,1.1)/tot;
+      flow7[i][j]=pow((topo[i][j]-topo[idown[i]][jup[j]])*oneoversqrt2,1.1f)/tot;
        else flow7[i][j]=0;
      if (topo[i][j]>topo[idown[i]][jdown[j]])
-      flow8[i][j]=pow((topo[i][j]-topo[idown[i]][jdown[j]])*oneoversqrt2,1.1)/tot;
+      flow8[i][j]=pow((topo[i][j]-topo[idown[i]][jdown[j]])*oneoversqrt2,1.1f)/tot;
        else flow8[i][j]=0;
      flow[iup[i]][j]+=flow[i][j]*flow1[i][j];
      flow[idown[i]][j]+=flow[i][j]*flow2[i][j];
@@ -346,8 +346,7 @@ int i,j;
      flow[idown[i]][jdown[j]]+=flow[i][j]*flow8[i][j];
 }
 
-void calculatealongchannelslope(i,j)
-int i,j;
+void calculatealongchannelslope(int i, int j)
 {    float down;
 
      down=0;
@@ -433,8 +432,7 @@ void hillslopediffusioninit()
           topo[i][j]=ux[i];}}
 }
 
-void avalanche(i,j)
-int i,j;
+void avalanche(int i, int j)
 {
      if (topo[iup[i]][j]-topo[i][j]>thresh)
       topo[iup[i]][j]=topo[i][j]+thresh;
@@ -454,7 +452,7 @@ int i,j;
       topo[idown[i]][jdown[j]]=topo[i][j]+thresh*sqrt2;
 }
 
-main()
+int main()
 {    FILE *fp1;
      float deltah,time,max,duration;
      int printinterval,idum,i,j,t,step;

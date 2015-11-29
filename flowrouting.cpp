@@ -1,4 +1,6 @@
 #include "flowrouting.h"
+#include <cstdlib>
+#include <iostream>
 
 #define sqrt2 1.414213562373
 #define oneoversqrt2 0.707106781186
@@ -10,6 +12,13 @@ FlowRouting::FlowRouting()
 
 }
 
+void FlowRouting::fillinpitsandflats()
+{
+	
+	cout << "Flowrouting::fillinpits and flats not implemented" << endl;
+	exit(1);
+
+}
 void FlowRouting::fillinpitsandflats( Topo *q, int i, int j )
 {
     double min;
@@ -48,6 +57,13 @@ void FlowRouting::fillinpitsandflats( Topo *q, int i, int j )
     }
 }
 
+void FlowRouting::mfdflowroute()
+{
+	
+	cout << "Flowrouting::mfdflowroute and flats not implemented" << endl;
+	exit(1);
+
+}
 void FlowRouting::mfdflowroute( Topo *q, int i, int j )
 {
     float tot;
@@ -119,6 +135,13 @@ void FlowRouting::mfdflowroute( Topo *q, int i, int j )
     q->flow[q->idown[i]][q->jup[j]] += q->flow[i][j] * q->flow7[i][j];
     q->flow[q->idown[i]][q->jdown[j]] += q->flow[i][j] * q->flow8[i][j];
 }
+
+void FlowRouting::calculatealongchannelslope()
+{
+
+
+}
+
 
 void FlowRouting::calculatealongchannelslope( Topo *q, int i, int j )
 {

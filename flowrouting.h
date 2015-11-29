@@ -2,23 +2,27 @@
 #define FLOWROUTING_H
 
 #include "topo.h"
-#include "streamerosion.h"
+//#include "streamerosion.h"
 
 using namespace std;
 
 class FlowRouting
 {
 
+// make these static
 public:
 
     explicit FlowRouting();
     ~FlowRouting();
 
-    void fillinpitsandflats(Topo *q, int i, int j );
+    static void fillinpitsandflats(Topo *q, int i, int j );
+    static void fillinpitsandflats();
 
-    void mfdflowroute(Topo *q, int i, int j );
+    static void mfdflowroute(Topo *q, int i, int j );
+    static void mfdflowroute();
 
-    void calculatealongchannelslope( Topo *q, int i, int j );
+    static void calculatealongchannelslope( Topo *q, int i, int j );
+    static void calculatealongchannelslope();
 
 };
 
