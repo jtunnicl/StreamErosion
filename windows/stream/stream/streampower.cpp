@@ -521,6 +521,61 @@ void tridag(float a[], float b[], float c[], float r[], float u[],
 	free_vector(gam, 1, n);
 }
 
+
+void StreamPower::tridag(float a[], float b[], float c[], float r[], float u[], unsigned long n)
+{
+	unsigned long j;
+	float bet, *gam;
+
+	gam = vector(1, n);
+	u[1] = r[1] / (bet = b[1]);
+	for (j = 2; j <= n; j++)
+	{
+		gam[j] = c[j - 1] / bet;
+		bet = b[j] - a[j] * gam[j];
+		u[j] = (r[j] - a[j] * u[j - 1]) / bet;
+	}
+	for (j = (n - 1); j >= 1; j--)
+		u[j] -= gam[j + 1] * u[j + 1];
+	free_vector(gam, 1, n);
+}
+
+void StreamPower::Tridag(float a[], float b[], float c[], float r[], float u[], unsigned long n)
+{
+	std::vector<float> av = ArrayToVector(a, n, true);
+	std::vector<float> bv = ArrayToVector(b, n, true);
+	std::vector<float> cv = ArrayToVector(c, n, true);
+	std::vector<float> rv = ArrayToVector(r, n, true);
+	std::vector<float> uv = ArrayToVector(u, n, true);
+
+	Tridag(av, bv, cv, rv, uv, n);
+
+	VectorToArray(av, a);
+	VectorToArray(bv, b);
+	VectorToArray(cv, c);
+	VectorToArray(rv, r);
+	VectorToArray(uv, u);
+}
+
+
+void StreamPower::Tridag(std::vector<float>& a, std::vector<float>& b, std::vector<float>& c, std::vector<float>& r, std::vector<float>& u, int n)
+{
+	unsigned long j;
+	float bet;
+	std::vector<float> gam;
+
+	gam = Vector(1, n);
+	u[1] = r[1] / (bet = b[1]);
+	for (j = 2; j <= n; j++)
+	{
+		gam[j] = c[j - 1] / bet;
+		bet = b[j] - a[j] * gam[j];
+		u[j] = (r[j] - a[j] * u[j - 1]) / bet;
+	}
+	for (j = (n - 1); j >= 1; j--)
+		u[j] -= gam[j + 1] * u[j + 1];
+}
+
 void setupgridneighbors()
 {
 	int i, j;

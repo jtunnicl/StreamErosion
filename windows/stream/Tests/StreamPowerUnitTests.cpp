@@ -225,5 +225,26 @@ namespace Tests
 				Assert::AreEqual(indx[i], indxv[i]);
 			}
 		}
+
+		[TestMethod]
+		void TestTridag()
+		{
+			int size = 5;
+			float a[6] = {0, 0.1, 0.3, -0.2, 1.5, 0};
+			float b[6] = {0, 0.2, 0.4, -0.3, 2.5, 0};
+			float c[6] = {0, 0.3, 0.5, -0.4, 3.5, 0};
+			float r[6] = {0, 0.4, 0.6, -0.5, 4.5, 0};
+			float u[6] = {0, 0, 0, 0, 0, 0};
+			float uv[6] = {0, 0, 0, 0, 0, 0};
+
+			StreamPower::tridag(a, b, c, r, u, size);
+			StreamPower::Tridag(a, b, c, r, uv, size);
+
+			for (int i = 1; i <= size; i++)
+			{
+				Assert::AreEqual(u[i], uv[i]);
+			}
+			
+		}
 	};
 }
