@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "streampower.h"
-#include <numeric>
 #include <cmath>
 
 using namespace System;
@@ -177,6 +176,54 @@ namespace Tests
 
 			Assert::AreEqual(mean_old, mean_new, tolerance);
 			Assert::AreEqual(stdev_old, stdev_new, tolerance);
+		}
+
+		[TestMethod]
+		void TestArrayToVector()
+		{
+			int size = 5;
+			float farr[5] = {1, 2, 3, 4, 5};
+			std::vector<float> fv = ArrayToVector(farr, size);
+			Assert::AreEqual(farr[0], fv[0]);
+			Assert::AreEqual(farr[4], fv[4]);
+		}
+
+		[TestMethod]
+		void TestVectorToArray()
+		{
+			int size = 5;
+			float farr[5] = {0, 0, 0, 0, 0};
+			std::vector<float> fv = std::vector<float>();
+			for (int i = 0; i < size; i++)
+			{
+				fv.push_back(i);
+			}
+			VectorToArray(fv, farr);
+			Assert::AreEqual(fv[0], farr[0]);
+			Assert::AreEqual(fv[4], farr[4]);
+		}
+
+		[TestMethod]
+		void TestIndexx()
+		{
+			int nl = 1;
+			int nh = 5;
+			int size = nh - nl + 1 + NR_END;
+			float* farr = StreamPower::vector(nl, nh);
+			for (int i = 1; i <= nh; i++)
+			{
+				farr[i] = i;
+			}
+
+			int* indx = StreamPower::ivector(nl , nh);
+			StreamPower::indexx(nh, farr, indx);
+
+			std::vector<float> fv = ArrayToVector(farr, size);
+			std::vector<int> indxv = StreamPower::Indexx(fv);
+			for (int i = 1; i <= nh; i++)
+			{
+				Assert::AreEqual(indx[i], indxv[i]);
+			}
 		}
 	};
 }
