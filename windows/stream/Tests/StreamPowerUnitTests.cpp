@@ -15,18 +15,6 @@ namespace Tests
 	public: 
 
 		[TestMethod]
-		void ShouldFail()
-		{
-			Assert::AreEqual(3, StreamPower::Count());
-		}
-
-		[TestMethod]
-		void ShouldPass()
-		{
-			Assert::AreEqual(2, StreamPower::Count());
-		}
-
-		[TestMethod]
 		void TestVector()
 		{
 			int nl = 1;
@@ -55,7 +43,7 @@ namespace Tests
 		[TestMethod]
 		void TestMatrix()
 		{
-			// 10 x 10 matirx
+			// 10 x 10 mati_rx
 			int nrl = 1;
 			int nrh = 10;
 			int ncl = 1;
@@ -75,7 +63,7 @@ namespace Tests
 		[TestMethod]
 		void TestIMatrix()
 		{
-			// 10 x 10 matirx
+			// 10 x 10 mati_rx
 			int nrl = 1;
 			int nrh = 10;
 			int ncl = 1;
@@ -179,11 +167,11 @@ namespace Tests
 		}
 
 		[TestMethod]
-		void TestArrayToVector()
+		void TestArr_ayToVector()
 		{
 			int size = 5;
 			float farr[5] = {1, 2, 3, 4, 5};
-			std::vector<float> fv = ArrayToVector(farr, size);
+			std::vector<float> fv = Arr_ayToVector(farr, size);
 			Assert::AreEqual(farr[0], fv[0]);
 			Assert::AreEqual(farr[4], fv[4]);
 		}
@@ -198,7 +186,7 @@ namespace Tests
 			{
 				fv.push_back(i);
 			}
-			VectorToArray(fv, farr);
+			VectorToArr_ay(fv, farr);
 			Assert::AreEqual(fv[0], farr[0]);
 			Assert::AreEqual(fv[4], farr[4]);
 		}
@@ -218,7 +206,7 @@ namespace Tests
 			int* indx = StreamPower::ivector(nl , nh);
 			StreamPower::indexx(nh, farr, indx);
 
-			std::vector<float> fv = ArrayToVector(farr, size);
+			std::vector<float> fv = Arr_ayToVector(farr, size);
 			std::vector<int> indxv = StreamPower::Indexx(fv);
 			for (int i = 1; i <= nh; i++)
 			{
@@ -230,12 +218,12 @@ namespace Tests
 		void TestTridag()
 		{
 			int size = 5;
-			float a[6] = {0, 0.1, 0.3, -0.2, 1.5, 0};
-			float b[6] = {0, 0.2, 0.4, -0.3, 2.5, 0};
-			float c[6] = {0, 0.3, 0.5, -0.4, 3.5, 0};
-			float r[6] = {0, 0.4, 0.6, -0.5, 4.5, 0};
-			float u[6] = {0, 0, 0, 0, 0, 0};
-			float uv[6] = {0, 0, 0, 0, 0, 0};
+			float a[6] = {0.0f, 0.1f, 0.3f, -0.2f, 1.5f, 0.0f};
+			float b[6] = {0.0f, 0.2f, 0.4f, -0.3f, 2.5f, 0.0f};
+			float c[6] = {0.0f, 0.3f, 0.5f, -0.4f, 3.5f, 0.0f};
+			float r[6] = {0.0f, 0.4f, 0.6f, -0.5f, 4.5f, 0.0f};
+			float u[6] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+			float uv[6] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
 			StreamPower::tridag(a, b, c, r, u, size);
 			StreamPower::Tridag(a, b, c, r, uv, size);
@@ -243,6 +231,33 @@ namespace Tests
 			for (int i = 1; i <= size; i++)
 			{
 				Assert::AreEqual(u[i], uv[i]);
+			}
+			
+		}
+
+		[TestMethod]
+		void TestSetupGridNeighbours()
+		{
+			int nx = 10;
+			int ny = 10;
+			
+			StreamPower sp_old = StreamPower(nx, ny);
+			sp_old.setupgridneighbors();
+
+			StreamPower sp_new = StreamPower(nx, ny);
+			sp_new.SetupGridNeighbors();
+
+			
+			for (int i = 1; i <= nx; i++)
+			{
+				Assert::AreEqual(sp_old._iup[i], sp_new.iup[i]);
+				Assert::AreEqual(sp_old._idown[i], sp_new.idown[i]);
+			}
+
+			for (int j = 1; j <= ny; j++)
+			{
+				Assert::AreEqual(sp_old._jup[j], sp_new.jup[j]);
+				Assert::AreEqual(sp_old._jdown[j], sp_new.jdown[j]);
 			}
 			
 		}
