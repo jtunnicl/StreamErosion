@@ -701,8 +701,28 @@ void StreamPower::HillSlopeDiffusionInit()
 	}
 }
 
-/* ok
-void avalanche(int i, int j)
+
+void StreamPower::Avalanche(int i, int j)
+{
+	if (topo[iup[i]][j] - _topo[i][j] > thresh)
+		topo[iup[i]][j] = _topo[i][j] + thresh;
+	if (topo[idown[i]][j] - _topo[i][j] > thresh)
+		topo[idown[i]][j] = _topo[i][j] + thresh;
+	if (topo[i][jup[j]] - _topo[i][j] > thresh)
+		topo[i][jup[j]] = _topo[i][j] + thresh;
+	if (topo[i][jdown[j]] - _topo[i][j] > thresh)
+		topo[i][jdown[j]] = _topo[i][j] + thresh;
+	if (topo[iup[i]][jup[j]] - _topo[i][j] > (thresh*sqrt2))
+		topo[iup[i]][jup[j]] = _topo[i][j] + thresh*sqrt2;
+	if (topo[iup[i]][jdown[j]] - _topo[i][j] > (thresh*sqrt2))
+		topo[iup[i]][jdown[j]] = _topo[i][j] + thresh*sqrt2;
+	if (topo[idown[i]][jup[j]] - _topo[i][j] > (thresh*sqrt2))
+		topo[idown[i]][jup[j]] = _topo[i][j] + thresh*sqrt2;
+	if (topo[idown[i]][jdown[j]] - _topo[i][j] > (thresh*sqrt2))
+		topo[idown[i]][jdown[j]] = _topo[i][j] + thresh*sqrt2;
+}
+
+void StreamPower::avalanche(int i, int j)
 {
 	if (_topo[_iup[i]][j] - _topo[i][j] > thresh)
 		_topo[_iup[i]][j] = _topo[i][j] + thresh;
@@ -721,7 +741,7 @@ void avalanche(int i, int j)
 	if (_topo[_idown[i]][_jdown[j]] - _topo[i][j] > (thresh*sqrt2))
 		_topo[_idown[i]][_jdown[j]] = _topo[i][j] + thresh*sqrt2;
 }
-*/
+
 
 /*
 int start()
@@ -729,7 +749,6 @@ int start()
 	FILE *fp1;
 	float deltah, time, m_ax, duration;
 	int printinterval, idum, i, j, t, step;
-
 	fp1 = fopen("streampower_topo", "w");
 	lattice_size_x = 250;
 	lattice_size_y = 250;
