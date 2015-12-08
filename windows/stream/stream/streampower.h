@@ -98,6 +98,9 @@ public:
 
 	void calculatealongchannel_slope(int i, int j); // old implementation
 	void CalculateAlongChannelSlope(int i, int j); // new implementation
+
+	void mfd_flowroute(int i, int j); //old implementation
+	void MFDFlowRoute(int i, int j); //new implementation
 };
 
 template <typename T> std::vector<T> ArrayToVector(T* a, int size)

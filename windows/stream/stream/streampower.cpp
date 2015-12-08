@@ -423,10 +423,9 @@ void fillinpitsandflats(int i, int j)
 		fillinpitsandflats(_iup[i], _jdown[j]);
 	}
 }
+*/
 
-/* this is ok
-void mfd_flowroute(int i, int j)
-
+void StreamPower::mfd_flowroute(int i, int j)
 {
 	float tot;
 
@@ -480,8 +479,61 @@ void mfd_flowroute(int i, int j)
 	_flow[_idown[i]][_jup[j]] += _flow[i][j] * _flow7[i][j];
 	_flow[_idown[i]][_jdown[j]] += _flow[i][j] * _flow8[i][j];
 }
-*/
 
+void StreamPower::MFDFlowRoute(int i, int j)
+{
+	float tot;
+
+	tot = 0;
+	if (topo[i][j] > topo[iup[i]][j])
+		tot += pow(topo[i][j] - topo[iup[i]][j], 1.1f);
+	if (topo[i][j] > topo[idown[i]][j])
+		tot += pow(topo[i][j] - topo[idown[i]][j], 1.1f);
+	if (topo[i][j] > topo[i][jup[j]])
+		tot += pow(topo[i][j] - topo[i][jup[j]], 1.1f);
+	if (topo[i][j] > topo[i][jdown[j]])
+		tot += pow(topo[i][j] - topo[i][jdown[j]], 1.1f);
+	if (topo[i][j] > topo[iup[i]][jup[j]])
+		tot += pow((topo[i][j] - topo[iup[i]][jup[j]])*oneoversqrt2, 1.1f);
+	if (topo[i][j] > topo[iup[i]][jdown[j]])
+		tot += pow((topo[i][j] - topo[iup[i]][jdown[j]])*oneoversqrt2, 1.1f);
+	if (topo[i][j] > topo[idown[i]][jup[j]])
+		tot += pow((topo[i][j] - topo[idown[i]][jup[j]])*oneoversqrt2, 1.1f);
+	if (topo[i][j] > topo[idown[i]][jdown[j]])
+		tot += pow((topo[i][j] - topo[idown[i]][jdown[j]])*oneoversqrt2, 1.1f);
+	if (topo[i][j] > topo[iup[i]][j])
+		flow1[i][j] = pow(topo[i][j] - topo[iup[i]][j], 1.1f) / tot;
+	else flow1[i][j] = 0;
+	if (topo[i][j] > topo[idown[i]][j])
+		flow2[i][j] = pow(topo[i][j] - topo[idown[i]][j], 1.1f) / tot;
+	else flow2[i][j] = 0;
+	if (topo[i][j] > topo[i][jup[j]])
+		flow3[i][j] = pow(topo[i][j] - topo[i][jup[j]], 1.1f) / tot;
+	else flow3[i][j] = 0;
+	if (topo[i][j] > topo[i][jdown[j]])
+		flow4[i][j] = pow(topo[i][j] - topo[i][jdown[j]], 1.1f) / tot;
+	else flow4[i][j] = 0;
+	if (topo[i][j] > topo[iup[i]][jup[j]])
+		flow5[i][j] = pow((topo[i][j] - topo[iup[i]][jup[j]])*oneoversqrt2, 1.1f) / tot;
+	else flow5[i][j] = 0;
+	if (topo[i][j] > topo[iup[i]][jdown[j]])
+		flow6[i][j] = pow((topo[i][j] - topo[iup[i]][jdown[j]])*oneoversqrt2, 1.1f) / tot;
+	else flow6[i][j] = 0;
+	if (topo[i][j] > topo[idown[i]][jup[j]])
+		flow7[i][j] = pow((topo[i][j] - topo[idown[i]][jup[j]])*oneoversqrt2, 1.1f) / tot;
+	else flow7[i][j] = 0;
+	if (topo[i][j] > topo[idown[i]][jdown[j]])
+		flow8[i][j] = pow((topo[i][j] - topo[idown[i]][jdown[j]])*oneoversqrt2, 1.1f) / tot;
+	else flow8[i][j] = 0;
+	flow[iup[i]][j] += flow[i][j] * flow1[i][j];
+	flow[idown[i]][j] += flow[i][j] * flow2[i][j];
+	flow[i][jup[j]] += flow[i][j] * flow3[i][j];
+	flow[i][jdown[j]] += flow[i][j] * flow4[i][j];
+	flow[iup[i]][jup[j]] += flow[i][j] * flow5[i][j];
+	flow[iup[i]][jdown[j]] += flow[i][j] * flow6[i][j];
+	flow[idown[i]][jup[j]] += flow[i][j] * flow7[i][j];
+	flow[idown[i]][jdown[j]] += flow[i][j] * flow8[i][j];
+}
 
 void StreamPower::calculatealongchannel_slope(int i, int j)
 {
