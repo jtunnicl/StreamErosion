@@ -482,8 +482,8 @@ void mfd_flowroute(int i, int j)
 }
 */
 
-/* ok
-void calculatealongchannel_slope(int i, int j)
+
+void StreamPower::calculatealongchannel_slope(int i, int j)
 {
 	float down;
 
@@ -500,9 +500,28 @@ void calculatealongchannel_slope(int i, int j)
 		down = (_topo[_iup[i]][_jdown[j]] - _topo[i][j])*oneoversqrt2;
 	if ((_topo[_idown[i]][_jdown[j]] - _topo[i][j])*oneoversqrt2 < down)
 		down = (_topo[_idown[i]][_jdown[j]] - _topo[i][j])*oneoversqrt2;
-	_slope[i][j] = fabs(down) / delt_ax;
+	_slope[i][j] = fabs(down) / deltax;
 }
-*/
+
+void StreamPower::CalculateAlongChannelSlope(int i, int j)
+{
+	float down;
+
+	down = 0;
+	if (topo[iup[i]][j] - topo[i][j] < down) down = topo[iup[i]][j] - topo[i][j];
+	if (topo[idown[i]][j] - topo[i][j] < down) down = topo[idown[i]][j] - topo[i][j];
+	if (topo[i][jup[j]] - topo[i][j] < down) down = topo[i][jup[j]] - topo[i][j];
+	if (topo[i][jdown[j]] - topo[i][j] < down) down = topo[i][jdown[j]] - topo[i][j];
+	if ((topo[iup[i]][jup[j]] - topo[i][j])*oneoversqrt2 < down)
+		down = (topo[iup[i]][jup[j]] - topo[i][j])*oneoversqrt2;
+	if ((topo[idown[i]][jup[j]] - topo[i][j])*oneoversqrt2 < down)
+		down = (topo[idown[i]][jup[j]] - topo[i][j])*oneoversqrt2;
+	if ((topo[iup[i]][jdown[j]] - topo[i][j])*oneoversqrt2 < down)
+		down = (topo[iup[i]][jdown[j]] - topo[i][j])*oneoversqrt2;
+	if ((topo[idown[i]][jdown[j]] - topo[i][j])*oneoversqrt2 < down)
+		down = (topo[idown[i]][jdown[j]] - topo[i][j])*oneoversqrt2;
+	slope[i][j] = fabs(down) / deltax;
+}
 
 
 void StreamPower::hill_slopediffusioninit()
@@ -747,7 +766,7 @@ void StreamPower::avalanche(int i, int j)
 int start()
 {
 	FILE *fp1;
-	float deltah, time, m_ax, duration;
+	float deltah, time, max, duration;
 	int printinterval, idum, i, j, t, step;
 	fp1 = fopen("streampower_topo", "w");
 	lattice_size_x = 250;
@@ -841,7 +860,7 @@ int start()
 				_topoold[i][j] += U*timestep;
 			}
 		//perform upwind erosion
-		m_ax = 0;
+		max = 0;
 		for (i = 2; i <= lattice_size_x - 1; i++)
 			for (j = 2; j <= lattice_size_y - 1; j++)
 			{
@@ -849,10 +868,10 @@ int start()
 				deltah = timestep*K*sqrt(_flow[i][j])*delt_ax*_slope[i][j];
 				_topo[i][j] -= deltah;
 				if (_topo[i][j]<0) _topo[i][j] = 0;
-				if (K*sqrt(_flow[i][j])*delt_ax>m_ax) m_ax = K*sqrt(_flow[i][j])*delt_ax;
+				if (K*sqrt(_flow[i][j])*delt_ax>max) max = K*sqrt(_flow[i][j])*delt_ax;
 			}
 		time += timestep;
-		if (m_ax > 0.3*delt_ax / timestep)
+		if (max > 0.3*delt_ax / timestep)
 		{
 			time -= timestep;
 			timestep /= 2.0;
@@ -862,7 +881,7 @@ int start()
 		}
 		else
 		{
-			if (m_ax < 0.03*delt_ax / timestep) timestep *= 1.2;
+			if (max < 0.03*delt_ax / timestep) timestep *= 1.2;
 			for (j = 1; j <= lattice_size_y; j++)
 				for (i = 1; i <= lattice_size_x; i++)
 					_topoold[i][j] = _topo[i][j];
