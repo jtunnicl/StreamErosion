@@ -167,11 +167,11 @@ namespace Tests
 		}
 
 		[TestMethod]
-		void TestArr_ayToVector()
+		void TestArrayToVector()
 		{
 			int size = 5;
 			float farr[5] = {1, 2, 3, 4, 5};
-			std::vector<float> fv = Arr_ayToVector(farr, size);
+			std::vector<float> fv = ArrayToVector(farr, size);
 			Assert::AreEqual(farr[0], fv[0]);
 			Assert::AreEqual(farr[4], fv[4]);
 		}
@@ -186,7 +186,7 @@ namespace Tests
 			{
 				fv.push_back(i);
 			}
-			VectorToArr_ay(fv, farr);
+			VectorToArray(fv, farr);
 			Assert::AreEqual(fv[0], farr[0]);
 			Assert::AreEqual(fv[4], farr[4]);
 		}
@@ -206,7 +206,7 @@ namespace Tests
 			int* indx = StreamPower::ivector(nl , nh);
 			StreamPower::indexx(nh, farr, indx);
 
-			std::vector<float> fv = Arr_ayToVector(farr, size);
+			std::vector<float> fv = ArrayToVector(farr, size);
 			std::vector<int> indxv = StreamPower::Indexx(fv);
 			for (int i = 1; i <= nh; i++)
 			{
@@ -261,5 +261,45 @@ namespace Tests
 			}
 			
 		}
+
+
+		[TestMethod]
+		void TestSetTopo()
+		{
+			int nx = 10;
+			int ny = 10;
+			float tolerance = 1e-5;
+
+			StreamPower sp_old = StreamPower(nx, ny);
+			sp_old.init();
+			float** rf = sp_old.create_random_field();
+			sp_old.set_topo(rf);
+
+			StreamPower sp_new = StreamPower(nx, ny);
+			sp_new.Init();
+			std::vector<std::vector<float>> rfv = StreamPower::Matrix(1, nx, 1, ny);
+			for (int i = 1; i <= nx; i++)
+			{
+				for (int j = 1; j <= ny; j++)
+				{
+					rfv[i][j] = rf[i][j];
+				}
+			}
+			sp_new.SetTopo(rfv);
+
+			float** topo_old = sp_old.get_topo();
+			std::vector<std::vector<float>> topo_new = sp_new.GetTopo();
+
+			for (int i = 1; i <= nx; i++)
+			{
+				for (int j = 1; j <= ny; j++)
+				{
+					Assert::AreEqual(topo_old[i][j], topo_new[i][j], tolerance);
+				}
+			}
+
+
+		}
+
 	};
 }

@@ -26,7 +26,7 @@ class StreamPower
 public:
 
 	int lattice_size_x, lattice_size_y;
-	float U, K, D, timestep, delt_ax, thresh, thresholdarea;
+	float U, K, D, timestep, deltax, thresh, thresholdarea;
 
 	// old vars
 	float **_flow1, **_flow2, **_flow3, **_flow4, **_flow5, **_flow6, **_flow7, **_flow8, **_flow;
@@ -35,7 +35,9 @@ public:
 	int *_topovecind, *_iup, *_idown, *_jup, *_jdown;
 
 	// new vars
-	std::vector<int> iup, idown, jup, jdown;
+	std::vector<int> iup, idown, jup, jdown, topovecind;
+	std::vector<float> ax, ay, bx, by, cx, cy, ux, uy, rx, ry, topovec;
+	std::vector<std::vector<float>> topo, topoold, topo2, slope, flow, flow1, flow2, flow3, flow4, flow5, flow6, flow7, flow8;
 
 	StreamPower();
 	StreamPower(int nx, int ny);
@@ -72,9 +74,27 @@ public:
 
 	void setupgridneighbors(); // old implementation
 	void SetupGridNeighbors(); // new implementation
+
+	void init(); // using old vars
+	void Init(); // using new vars
+
+	void hill_slopediffusioninit();	// old implementation
+	void HillSlopeDiffusionInit();	// new implementation
+
+	float** create_random_field(); // old implementation
+	std::vector<std::vector<float>> CreateRandomField();	// new implementation
+
+	void set_topo(float** t);	// old implementation
+	void SetTopo(std::vector<std::vector<float>> t);	// new implementation
+
+	void init_diffusion(); // old implementation
+	void InitDiffusion(); // new implementation
+
+	float** get_topo(); // old implementation
+	std::vector<std::vector<float>> GetTopo(); // new implementation
 };
 
-template <typename T> std::vector<T> Arr_ayToVector(T* a, int size)
+template <typename T> std::vector<T> ArrayToVector(T* a, int size)
 {
 	std::vector<T> v = std::vector<T>(size);
 	for (int i = 0; i < size; i++)
@@ -84,7 +104,7 @@ template <typename T> std::vector<T> Arr_ayToVector(T* a, int size)
 	return v;
 }
 
-template <typename T> std::vector<T> Arr_ayToVector(T* a, int size, bool fortranIndexing)
+template <typename T> std::vector<T> ArrayToVector(T* a, int size, bool fortranIndexing)
 {
 	std::vector<T> v;
 	if (fortranIndexing)
@@ -103,7 +123,7 @@ template <typename T> std::vector<T> Arr_ayToVector(T* a, int size, bool fortran
 	return v;
 }
 
-template <typename T> void VectorToArr_ay(std::vector<T>& v, T* a)
+template <typename T> void VectorToArray(std::vector<T>& v, T* a)
 {
 	for (int i = 0; i < v.size(); i++)
 	{

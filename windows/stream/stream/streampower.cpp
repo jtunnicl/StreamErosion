@@ -278,9 +278,9 @@ void StreamPower::indexx(int n, float* arr, int* indx)
 
 void StreamPower::Indexx(int n, float* arr, int* indx)
 {
-	std::vector<float> arrv = Arr_ayToVector(arr, n);
+	std::vector<float> arrv = ArrayToVector(arr, n);
 	std::vector<int> indxv = Indexx(arrv);
-	VectorToArr_ay(indxv, indx);
+	VectorToArray(indxv, indx);
 }
 
 std::vector<int> StreamPower::Indexx(std::vector<float>& arr)
@@ -308,19 +308,19 @@ void StreamPower::tridag(float a[], float b[], float c[], float r[], float u[], 
 
 void StreamPower::Tridag(float a[], float b[], float c[], float r[], float u[], unsigned long n)
 {
-	std::vector<float> av = Arr_ayToVector(a, n, true);
-	std::vector<float> bv = Arr_ayToVector(b, n, true);
-	std::vector<float> cv = Arr_ayToVector(c, n, true);
-	std::vector<float> rv = Arr_ayToVector(r, n, true);
-	std::vector<float> uv = Arr_ayToVector(u, n, true);
+	std::vector<float> av = ArrayToVector(a, n, true);
+	std::vector<float> bv = ArrayToVector(b, n, true);
+	std::vector<float> cv = ArrayToVector(c, n, true);
+	std::vector<float> rv = ArrayToVector(r, n, true);
+	std::vector<float> uv = ArrayToVector(u, n, true);
 
 	Tridag(av, bv, cv, rv, uv, n);
 
-	VectorToArr_ay(av, a);
-	VectorToArr_ay(bv, b);
-	VectorToArr_ay(cv, c);
-	VectorToArr_ay(rv, r);
-	VectorToArr_ay(uv, u);
+	VectorToArray(av, a);
+	VectorToArray(bv, b);
+	VectorToArray(cv, c);
+	VectorToArray(rv, r);
+	VectorToArray(uv, u);
 }
 
 
@@ -394,7 +394,7 @@ void StreamPower::SetupGridNeighbors()
 	jup[lattice_size_y] = lattice_size_y;
 }
 
-// Replace with TauDEM
+// Replace with TauDEM flood
 /*
 void fillinpitsandflats(int i, int j)
 {
@@ -424,6 +424,7 @@ void fillinpitsandflats(int i, int j)
 	}
 }
 
+/* this is ok
 void mfd_flowroute(int i, int j)
 
 {
@@ -480,7 +481,8 @@ void mfd_flowroute(int i, int j)
 	_flow[_idown[i]][_jdown[j]] += _flow[i][j] * _flow8[i][j];
 }
 */
-/*
+
+/* ok
 void calculatealongchannel_slope(int i, int j)
 {
 	float down;
@@ -502,8 +504,8 @@ void calculatealongchannel_slope(int i, int j)
 }
 */
 
-/*
-void hill_slopediffusioninit()
+
+void StreamPower::hill_slopediffusioninit()
 {
 	int i, j, count;
 	float term1;
@@ -520,7 +522,7 @@ void hill_slopediffusioninit()
 	_ry = vector(1, lattice_size_y);
 	D = 10000000.0;
 	count = 0;
-	term1 = D / (delt_ax*delt_ax);
+	term1 = D / (deltax*deltax);
 	for (i = 1; i <= lattice_size_x; i++)
 	{
 		_ax[i] = -term1;
@@ -592,9 +594,114 @@ void hill_slopediffusioninit()
 		}
 	}
 }
-*/
 
-/*
+void StreamPower::HillSlopeDiffusionInit()
+{
+	int i, j, count;
+	float term1;
+
+	ax = Vector(1, lattice_size_x);
+	ay = Vector(1, lattice_size_y);
+	bx = Vector(1, lattice_size_x);
+	by = Vector(1, lattice_size_y);
+	cx = Vector(1, lattice_size_x);
+	cy = Vector(1, lattice_size_y);
+	ux = Vector(1, lattice_size_x);
+	uy = Vector(1, lattice_size_y);
+	rx = Vector(1, lattice_size_x);
+	ry = Vector(1, lattice_size_y);
+	D = 10000000.0;
+	count = 0;
+	term1 = D / (deltax*deltax);
+	for (i = 1; i <= lattice_size_x; i++)
+	{
+		ax[i] = -term1;
+		cx[i] = -term1;
+		bx[i] = 4 * term1 + 1;
+		if (i == 1)
+		{
+			bx[i] = 1;
+			cx[i] = 0;
+		}
+		if (i == lattice_size_x)
+		{
+			bx[i] = 1;
+			ax[i] = 0;
+		}
+	}
+	for (j = 1; j <= lattice_size_y; j++)
+	{
+		ay[j] = -term1;
+		cy[j] = -term1;
+		by[j] = 4 * term1 + 1;
+		if (j == 1)
+		{
+			by[j] = 1;
+			cy[j] = 0;
+		}
+		if (j == lattice_size_y)
+		{
+			by[j] = 1;
+			ay[j] = 0;
+		}
+	}
+	while (count < 5)
+	{
+		count++;
+		for (i = 1; i <= lattice_size_x; i++)
+		{
+			for (j = 1; j <= lattice_size_y; j++)
+			{
+				topo2[i][j] = topo[i][j];
+			}
+		}
+		for (i = 1; i <= lattice_size_x; i++)
+		{
+			for (j = 1; j <= lattice_size_y; j++)
+			{
+				ry[j] = term1*(topo[iup[i]][j] + topo[idown[i]][j]) + topoold[i][j];
+				if (j == 1)
+					ry[j] = topoold[i][j];
+				if (j == lattice_size_y)
+					ry[j] = topoold[i][j];
+			}
+			Tridag(ay, by, cy, ry, uy, lattice_size_y);
+			for (j = 1; j <= lattice_size_y; j++)
+			{
+				topo[i][j] = uy[j];
+			}
+		}
+		for (i = 1; i <= lattice_size_x; i++)
+		{
+			for (j = 1; j <= lattice_size_y; j++)
+			{
+				topo2[i][j] = topo[i][j];
+			}
+		}
+		for (j = 1; j <= lattice_size_y; j++)
+		{
+			for (i = 1; i <= lattice_size_x; i++)
+			{
+				rx[i] = term1*(topo[i][jup[j]] + topo[i][jdown[j]]) + topoold[i][j];
+				if (i == 1)
+				{
+					rx[i] = topoold[i][j];
+				}
+				if (i == lattice_size_x)
+				{
+					rx[i] = topoold[i][j];
+				}
+			}
+			Tridag(ax, bx, cx, rx, ux, lattice_size_x);
+			for (i = 1; i <= lattice_size_x; i++)
+			{
+				topo[i][j] = ux[i];
+			}
+		}
+	}
+}
+
+/* ok
 void avalanche(int i, int j)
 {
 	if (_topo[_iup[i]][j] - _topo[i][j] > thresh)
@@ -756,11 +863,156 @@ int start()
 }
 */
 
+float** StreamPower::create_random_field()
+{
+	float** mat = matrix(1, lattice_size_x, 1, lattice_size_y);
+	int idum = -678;
+	for (int i = 1; i <= lattice_size_x; i++)
+	{
+		for (int j = 1; j <= lattice_size_y; j++)
+		{
+			mat[i][j] = 0.5*gasdev(&idum);
+		}
+	}
+	return mat;
+}
 
-StreamPower::StreamPower()
+std::vector<std::vector<float>> StreamPower::CreateRandomField()
+{
+	std::vector<std::vector<float>> mat = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	std::default_random_engine generator;
+	std::normal_distribution<float> distribution(0.0f, 1.0f);
+	for (int i = 1; i <= lattice_size_x; i++)
+	{
+		for (int j = 1; j <= lattice_size_y; j++)
+		{
+			mat[i][j] = 0.5*Gasdev(generator, distribution);
+		}
+	}
+	return mat;
+}
+
+void StreamPower::set_topo(float** t)
+{
+	for (int i = 1; i <= lattice_size_x; i++)
+	{
+		for (int j = 1; j <= lattice_size_y; j++)
+		{
+			_topo[i][j] = t[i][j];
+			_topoold[i][j] = _topo[i][j];
+			_flow[i][j] = 1;
+		}
+	}
+	init_diffusion();
+}
+
+void StreamPower::SetTopo(std::vector<std::vector<float>> t)
+{
+	for (int i = 1; i <= lattice_size_x; i++)
+	{
+		for (int j = 1; j <= lattice_size_y; j++)
+		{
+			topo[i][j] = t[i][j];
+			topoold[i][j] = topo[i][j];
+			flow[i][j] = 1;
+		}
+	}
+	InitDiffusion();
+}
+
+void StreamPower::init_diffusion()
+{
+	//construct diffusional landscape for initial flow routing
+	for (int step = 1; step <= 10; step++)
+	{
+		hill_slopediffusioninit();
+		for (int i = 2; i <= lattice_size_x - 1; i++)
+		{
+			for (int j = 2; j <= lattice_size_y - 1; j++)
+			{
+				_topo[i][j] += 0.1;
+				_topoold[i][j] += 0.1;
+			}
+		}
+	}
+	
+}
+
+void StreamPower::InitDiffusion()
+{
+	//construct diffusional landscape for initial flow routing
+	for (int step = 1; step <= 10; step++)
+	{
+		HillSlopeDiffusionInit();
+		for (int i = 2; i <= lattice_size_x - 1; i++)
+		{
+			for (int j = 2; j <= lattice_size_y - 1; j++)
+			{
+				topo[i][j] += 0.1;
+				topoold[i][j] += 0.1;
+			}
+		}
+	}
+}
+
+void StreamPower::init()
 {
 
+	U = 1;                // m/kyr
+	K = 0.05;             // kyr^-1
+	int printinterval = 100;
+	deltax = 200.0;       // m
+	thresh = 0.58*deltax; // 30 deg
+	timestep = 1;         // kyr
+	int duration = 100;
+	setupgridneighbors();
+	_topo = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_topo2 = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_topoold = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_slope = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_flow = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_flow1 = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_flow2 = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_flow3 = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_flow4 = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_flow5 = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_flow6 = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_flow7 = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_flow8 = matrix(1, lattice_size_x, 1, lattice_size_y);
+	_topovec = vector(1, lattice_size_x*lattice_size_y);
+	_topovecind = ivector(1, lattice_size_x*lattice_size_y);
+
 }
+
+void StreamPower::Init()
+{
+
+	U = 1;                // m/kyr
+	K = 0.05;             // kyr^-1
+	int printinterval = 100;
+	deltax = 200.0;       // m
+	thresh = 0.58*deltax; // 30 deg
+	timestep = 1;         // kyr
+	int duration = 100;
+	SetupGridNeighbors();
+	topo = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	topo2 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	topoold = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	slope = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow1 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow2 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow3 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow4 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow5 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow6 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow7 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow8 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	topovec = Vector(1, lattice_size_x*lattice_size_y);
+	topovecind = IVector(1, lattice_size_x*lattice_size_y);
+}
+
+StreamPower::StreamPower() : StreamPower(50, 50) {}
 
 StreamPower::StreamPower(int nx, int ny) : lattice_size_x(nx), lattice_size_y(ny)
 {
@@ -768,3 +1020,13 @@ StreamPower::StreamPower(int nx, int ny) : lattice_size_x(nx), lattice_size_y(ny
 }
 
 StreamPower::~StreamPower() {}
+
+float** StreamPower::get_topo()
+{
+	return _topo;
+}
+
+std::vector<std::vector<float>> StreamPower::GetTopo()
+{
+	return topo;
+}
