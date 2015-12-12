@@ -15,18 +15,6 @@ namespace Tests
 	public: 
 
 		[TestMethod]
-		void ShouldFail()
-		{
-			Assert::AreEqual(3, StreamPower::Count());
-		}
-
-		[TestMethod]
-		void ShouldPass()
-		{
-			Assert::AreEqual(2, StreamPower::Count());
-		}
-
-		[TestMethod]
 		void TestVector()
 		{
 			int nl = 1;
@@ -55,7 +43,7 @@ namespace Tests
 		[TestMethod]
 		void TestMatrix()
 		{
-			// 10 x 10 matirx
+			// 10 x 10 mati_rx
 			int nrl = 1;
 			int nrh = 10;
 			int ncl = 1;
@@ -75,7 +63,7 @@ namespace Tests
 		[TestMethod]
 		void TestIMatrix()
 		{
-			// 10 x 10 matirx
+			// 10 x 10 mati_rx
 			int nrl = 1;
 			int nrh = 10;
 			int ncl = 1;
@@ -225,5 +213,93 @@ namespace Tests
 				Assert::AreEqual(indx[i], indxv[i]);
 			}
 		}
+
+		[TestMethod]
+		void TestTridag()
+		{
+			int size = 5;
+			float a[6] = {0.0f, 0.1f, 0.3f, -0.2f, 1.5f, 0.0f};
+			float b[6] = {0.0f, 0.2f, 0.4f, -0.3f, 2.5f, 0.0f};
+			float c[6] = {0.0f, 0.3f, 0.5f, -0.4f, 3.5f, 0.0f};
+			float r[6] = {0.0f, 0.4f, 0.6f, -0.5f, 4.5f, 0.0f};
+			float u[6] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+			float uv[6] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+
+			StreamPower::tridag(a, b, c, r, u, size);
+			StreamPower::Tridag(a, b, c, r, uv, size);
+
+			for (int i = 1; i <= size; i++)
+			{
+				Assert::AreEqual(u[i], uv[i]);
+			}
+			
+		}
+
+		[TestMethod]
+		void TestSetupGridNeighbours()
+		{
+			int nx = 10;
+			int ny = 10;
+			
+			StreamPower sp_old = StreamPower(nx, ny);
+			sp_old.setupgridneighbors();
+
+			StreamPower sp_new = StreamPower(nx, ny);
+			sp_new.SetupGridNeighbors();
+
+			
+			for (int i = 1; i <= nx; i++)
+			{
+				Assert::AreEqual(sp_old._iup[i], sp_new.iup[i]);
+				Assert::AreEqual(sp_old._idown[i], sp_new.idown[i]);
+			}
+
+			for (int j = 1; j <= ny; j++)
+			{
+				Assert::AreEqual(sp_old._jup[j], sp_new.jup[j]);
+				Assert::AreEqual(sp_old._jdown[j], sp_new.jdown[j]);
+			}
+			
+		}
+
+
+		[TestMethod]
+		void TestSetTopo()
+		{
+			int nx = 10;
+			int ny = 10;
+			float tolerance = 1e-5;
+
+			StreamPower sp_old = StreamPower(nx, ny);
+			sp_old.init();
+			float** rf = sp_old.create_random_field();
+			sp_old.set_topo(rf);
+
+			StreamPower sp_new = StreamPower(nx, ny);
+			sp_new.Init();
+			std::vector<std::vector<float>> rfv = StreamPower::Matrix(1, nx, 1, ny);
+			for (int i = 1; i <= nx; i++)
+			{
+				for (int j = 1; j <= ny; j++)
+				{
+					rfv[i][j] = rf[i][j];
+				}
+			}
+			sp_new.SetTopo(rfv);
+
+			float** topo_old = sp_old.get_topo();
+			std::vector<std::vector<float>> topo_new = sp_new.GetTopo();
+
+			for (int i = 1; i <= nx; i++)
+			{
+				for (int j = 1; j <= ny; j++)
+				{
+					Assert::AreEqual(topo_old[i][j], topo_new[i][j], tolerance);
+				}
+			}
+
+
+		}
+
 	};
 }

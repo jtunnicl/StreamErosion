@@ -13,10 +13,12 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="streampower.cpp" />
+    <ClCompile Include="Topo.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="streampower.h" />
+    <ClInclude Include="Topo.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
