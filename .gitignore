@@ -41,3 +41,39 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Object files
+*.o
+
+
+# Logs
+*.log
+
+# Visual Studio
+# =============
+*.tlog
+*.res
+*.cache
+*.idb
+*.pdb
+*.suo
+*.ilk
+*.exe
+*.opensdf
+*.sdf
+*.manifest
+*.ipch
+*.lastbuildstate
+*.user
+*.filters
+*.dll
+*.metagen
+*.obj
+*.trx
+*.pch
+*.bi
+*.asm
+
+# Qt
+# =============
+qt/build-*
