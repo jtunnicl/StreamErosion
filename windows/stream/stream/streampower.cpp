@@ -1,12 +1,15 @@
 //#include<malloc.h>
-#include<cmath>
-#include<cstdio>
-#include<cstdlib>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
 #include "streampower.h"
+#include "priority_flood.hpp"
 
 /* old implementation */
 float* StreamPower::vector(int nl, int nh)
-/*	allocate a float vector with subscript range v[nl..nh] 
+/*	allocate a float vector with subscript range v[nl..nh]
 	NOTE: changed from malloc to calloc to allow testing of value initialisation with std::vector
 */
 {
@@ -119,23 +122,25 @@ std::vector<std::vector<float>> StreamPower::Matrix(int nrl, int nrh, int ncl, i
 
 float StreamPower::ran3(int* idum)
 {
-/*
-	Assuming this is supposed to produce a uniform random number between 0 and 1
-	as in http://cics.umd.edu/~lee/z/h1/w/src_jpl/ran3.F
-*/
+	/*
+		Assuming this is supposed to produce a uniform random number between 0 and 1
+		as in http://cics.umd.edu/~lee/z/h1/w/src_jpl/ran3.F
+	*/
 	static int inext, inextp;
 	static long ma[56];
 	static int iff = 0;
 	long mj, mk;
 	int i, ii, k;
 
-	if (*idum < 0 || iff == 0) {
+	if (*idum < 0 || iff == 0)
+	{
 		iff = 1;
 		mj = MSEED - (*idum < 0 ? -*idum : *idum);
 		mj %= MBIG;
 		ma[55] = mj;
 		mk = 1;
-		for (i = 1; i <= 54; i++) {
+		for (i = 1; i <= 54; i++)
+		{
 			ii = (21 * i) % 55;
 			ma[ii] = mk;
 			mk = mj - mk;
@@ -143,7 +148,8 @@ float StreamPower::ran3(int* idum)
 			mj = ma[ii];
 		}
 		for (k = 1; k <= 4; k++)
-			for (i = 1; i <= 55; i++) {
+			for (i = 1; i <= 55; i++)
+			{
 				ma[i] -= ma[1 + (i + 30) % 55];
 				if (ma[i] < MZ) ma[i] += MBIG;
 			}
@@ -193,10 +199,10 @@ float StreamPower::gasdev(int* idum)
 
 float StreamPower::Gasdev(std::default_random_engine& generator, std::normal_distribution<float>& distribution)
 {
-/*
-	Assuming this is the same code from here: http://www.stat.berkeley.edu/~paciorek/diss/code/regression.binomial/gasdev.C
-	We need to return a standard, normally distributed gaussian random number
-*/
+	/*
+		Assuming this is the same code from here: http://www.stat.berkeley.edu/~paciorek/diss/code/regression.binomial/gasdev.C
+		We need to return a standard, normally distributed gaussian random number
+	*/
 
 	return distribution(generator);
 
@@ -394,9 +400,43 @@ void StreamPower::SetupGridNeighbors()
 	jup[lattice_size_y] = lattice_size_y;
 }
 
-// Replace with TauDEM flood
-/*
-void fillinpitsandflats(int i, int j)
+void StreamPower::Flood()
+{
+	// update elev
+	for (int i = 1; i <= lattice_size_x; i++)
+	{
+		for (int j = 1; j <= lattice_size_y; j++)
+		{
+			elevation(i - 1, j - 1) = topo[i][j];
+		}
+	}
+
+	// perform flooding
+	original_priority_flood(elevation);
+
+	// update topo
+	for (int i = 0; i < lattice_size_x; i++)
+	{
+		for (int j = 0; j < lattice_size_y; j++)
+		{
+			topo[i + 1][j + 1] = elevation(i, j);
+		}
+	}
+
+}
+
+void StreamPower::FillInPits()
+{
+	for (int j = 1; j <= lattice_size_y; j++)
+	{
+		for (int i = 1; i <= lattice_size_x; i++)
+		{
+			FillInPitsAndFlats(i, j);
+		}
+	}
+}
+
+void StreamPower::fillinpitsandflats(int i, int j)
 {
 	float min;
 
@@ -423,7 +463,34 @@ void fillinpitsandflats(int i, int j)
 		fillinpitsandflats(_iup[i], _jdown[j]);
 	}
 }
-*/
+
+void StreamPower::FillInPitsAndFlats(int i, int j)
+{
+	float min;
+
+	min = topo[i][j];
+	if (topo[iup[i]][j] < min) min = topo[iup[i]][j];
+	if (topo[idown[i]][j] < min) min = topo[idown[i]][j];
+	if (topo[i][jup[j]] < min) min = topo[i][jup[j]];
+	if (topo[i][jdown[j]] < min) min = topo[i][jdown[j]];
+	if (topo[iup[i]][jup[j]] < min) min = topo[iup[i]][jup[j]];
+	if (topo[idown[i]][jup[j]] < min) min = topo[idown[i]][jup[j]];
+	if (topo[idown[i]][jdown[j]] < min) min = topo[idown[i]][jdown[j]];
+	if (topo[iup[i]][jdown[j]] < min) min = topo[iup[i]][jdown[j]];
+	if ((topo[i][j] <= min) && (i>1) && (j>1) && (i < lattice_size_x) && (j < lattice_size_y))
+	{
+		topo[i][j] = min + fillincrement;
+		FillInPitsAndFlats(i, j);
+		FillInPitsAndFlats(iup[i], j);
+		FillInPitsAndFlats(idown[i], j);
+		FillInPitsAndFlats(i, jup[j]);
+		FillInPitsAndFlats(i, jdown[j]);
+		FillInPitsAndFlats(iup[i], jup[j]);
+		FillInPitsAndFlats(idown[i], jup[j]);
+		FillInPitsAndFlats(idown[i], jdown[j]);
+		FillInPitsAndFlats(iup[i], jdown[j]);
+	}
+}
 
 void StreamPower::mfd_flowroute(int i, int j)
 {
@@ -775,22 +842,22 @@ void StreamPower::HillSlopeDiffusionInit()
 
 void StreamPower::Avalanche(int i, int j)
 {
-	if (topo[iup[i]][j] - _topo[i][j] > thresh)
-		topo[iup[i]][j] = _topo[i][j] + thresh;
-	if (topo[idown[i]][j] - _topo[i][j] > thresh)
-		topo[idown[i]][j] = _topo[i][j] + thresh;
-	if (topo[i][jup[j]] - _topo[i][j] > thresh)
-		topo[i][jup[j]] = _topo[i][j] + thresh;
-	if (topo[i][jdown[j]] - _topo[i][j] > thresh)
-		topo[i][jdown[j]] = _topo[i][j] + thresh;
-	if (topo[iup[i]][jup[j]] - _topo[i][j] > (thresh*sqrt2))
-		topo[iup[i]][jup[j]] = _topo[i][j] + thresh*sqrt2;
-	if (topo[iup[i]][jdown[j]] - _topo[i][j] > (thresh*sqrt2))
-		topo[iup[i]][jdown[j]] = _topo[i][j] + thresh*sqrt2;
-	if (topo[idown[i]][jup[j]] - _topo[i][j] > (thresh*sqrt2))
-		topo[idown[i]][jup[j]] = _topo[i][j] + thresh*sqrt2;
-	if (topo[idown[i]][jdown[j]] - _topo[i][j] > (thresh*sqrt2))
-		topo[idown[i]][jdown[j]] = _topo[i][j] + thresh*sqrt2;
+	if (topo[iup[i]][j] - topo[i][j] > thresh)
+		topo[iup[i]][j] = topo[i][j] + thresh;
+	if (topo[idown[i]][j] - topo[i][j] > thresh)
+		topo[idown[i]][j] = topo[i][j] + thresh;
+	if (topo[i][jup[j]] - topo[i][j] > thresh)
+		topo[i][jup[j]] = topo[i][j] + thresh;
+	if (topo[i][jdown[j]] - topo[i][j] > thresh)
+		topo[i][jdown[j]] = topo[i][j] + thresh;
+	if (topo[iup[i]][jup[j]] - topo[i][j] > (thresh*sqrt2))
+		topo[iup[i]][jup[j]] = topo[i][j] + thresh*sqrt2;
+	if (topo[iup[i]][jdown[j]] - topo[i][j] > (thresh*sqrt2))
+		topo[iup[i]][jdown[j]] = topo[i][j] + thresh*sqrt2;
+	if (topo[idown[i]][jup[j]] - topo[i][j] > (thresh*sqrt2))
+		topo[idown[i]][jup[j]] = topo[i][j] + thresh*sqrt2;
+	if (topo[idown[i]][jdown[j]] - topo[i][j] > (thresh*sqrt2))
+		topo[idown[i]][jdown[j]] = topo[i][j] + thresh*sqrt2;
 }
 
 void StreamPower::avalanche(int i, int j)
@@ -814,144 +881,185 @@ void StreamPower::avalanche(int i, int j)
 }
 
 
-/*
-int start()
+
+void StreamPower::Start()
 {
-	FILE *fp1;
-	float deltah, time, max, duration;
-	int printinterval, idum, i, j, t, step;
-	fp1 = fopen("streampower_topo", "w");
-	lattice_size_x = 250;
-	lattice_size_y = 250;
-	idum = -678;
-	U = 1;                // m/kyr
-	K = 0.05;             // kyr^-1
-	printinterval = 100;
-	delt_ax = 200.0;       // m
-	thresh = 0.58*delt_ax; // 30 deg
-	timestep = 1;         // kyr
-	duration = 100;
-	setupgridneighbors();
-	_topo = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_topo2 = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_topoold = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_slope = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_flow = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_flow1 = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_flow2 = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_flow3 = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_flow4 = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_flow5 = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_flow6 = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_flow7 = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_flow8 = matrix(1, lattice_size_x, 1, lattice_size_y);
-	_topovec = vector(1, lattice_size_x*lattice_size_y);
-	_topovecind = ivector(1, lattice_size_x*lattice_size_y);
-	for (i = 1; i <= lattice_size_x; i++)
+	float deltah, time, max;
+	int idum, i, j, t, step;
+	time = 0;
+
+	char fname[100];
+	sprintf(fname, "erosion_%d.txt", 0);
+	PrintState(fname);
+
+	while (time < duration)
+	{	
+		//perform landsliding
 		for (j = 1; j <= lattice_size_y; j++)
 		{
-			_topo[i][j] = 0.5*gasdev(&idum);
-			_topoold[i][j] = _topo[i][j];
-			_flow[i][j] = 1;
-		}
-	//construct diffusional landscape for initial _flow routing
-	for (step = 1; step <= 10; step++)
-	{
-		hill_slopediffusioninit();
-		for (i = 2; i <= lattice_size_x - 1; i++)
-			for (j = 2; j <= lattice_size_y - 1; j++)
-			{
-				_topo[i][j] += 0.1;
-				_topoold[i][j] += 0.1;
-			}
-	}
-	time = 0;
-	while (time < duration)
-	{//perform landsliding
-		for (j = 1; j <= lattice_size_y; j++)
 			for (i = 1; i <= lattice_size_x; i++)
-				_topovec[(j - 1)*lattice_size_x + i] = _topo[i][j];
-		indexx(lattice_size_x*lattice_size_y, _topovec, _topovecind);
+			{
+				topovec[(j - 1)*lattice_size_x + i] = topo[i][j];
+			}
+		}
+		//indexx(lattice_size_x*lattice_size_y, _topovec, _topovecind);
+		topovecind = Indexx(topovec);
+		
 		t = 0;
 		while (t < lattice_size_x*lattice_size_y)
 		{
 			t++;
-			i = (_topovecind[t]) % lattice_size_x;
-			if (i == 0) i = lattice_size_x;
-			j = (_topovecind[t]) / lattice_size_x + 1;
-			if (i == lattice_size_x) j--;
-			avalanche(i, j);
+			i = (topovecind[t]) % lattice_size_x;
+			if (i == 0)
+			{
+				i = lattice_size_x;
+			}
+			j = (topovecind[t]) / lattice_size_x + 1;
+			if (i == lattice_size_x)
+			{
+				j--;
+			}
+			//avalanche(i, j);
+			Avalanche(i, j);
 		}
 		for (j = 1; j <= lattice_size_y; j++)
+		{
 			for (i = 1; i <= lattice_size_x; i++)
-				_topoold[i][j] = _topo[i][j];
+			{
+				topoold[i][j] = topo[i][j];
+			}
+		}
+
+		// pit filling
+		/*
 		for (j = 1; j <= lattice_size_y; j++)
 			for (i = 1; i <= lattice_size_x; i++)
 				fillinpitsandflats(i, j);
+		*/
+		Flood();
+
 		for (j = 1; j <= lattice_size_y; j++)
+		{
 			for (i = 1; i <= lattice_size_x; i++)
 			{
-				_flow[i][j] = 1;
-				_topovec[(j - 1)*lattice_size_x + i] = _topo[i][j];
+				flow[i][j] = 1;
+				topovec[(j - 1)*lattice_size_x + i] = topo[i][j];
 			}
-		indexx(lattice_size_x*lattice_size_y, _topovec, _topovecind);
+		}
+		//indexx(lattice_size_x*lattice_size_y, _topovec, _topovecind);
+		topovecind = Indexx(topovec);
+
 		t = lattice_size_x*lattice_size_y + 1;
 		while (t > 1)
 		{
 			t--;
-			i = (_topovecind[t]) % lattice_size_x;
-			if (i == 0) i = lattice_size_x;
-			j = (_topovecind[t]) / lattice_size_x + 1;
-			if (i == lattice_size_x) j--;
-			mfd_flowroute(i, j);
+			i = (topovecind[t]) % lattice_size_x;
+			if (i == 0)
+			{
+				i = lattice_size_x;
+			}
+			j = (topovecind[t]) / lattice_size_x + 1;
+			if (i == lattice_size_x)
+			{
+				j--;
+			}
+			//mfd_flowroute(i, j);
+			MFDFlowRoute(i, j);
 		}
+
+		// perform uplift
 		for (i = 2; i <= lattice_size_x - 1; i++)
+		{
 			for (j = 2; j <= lattice_size_y - 1; j++)
 			{
-				_topo[i][j] += U*timestep;
-				_topoold[i][j] += U*timestep;
+				topo[i][j] += U*timestep;
+				topoold[i][j] += U*timestep;
 			}
+		}
+
 		//perform upwind erosion
 		max = 0;
 		for (i = 2; i <= lattice_size_x - 1; i++)
+		{
 			for (j = 2; j <= lattice_size_y - 1; j++)
 			{
-				calculatealongchannel_slope(i, j);
-				deltah = timestep*K*sqrt(_flow[i][j])*delt_ax*_slope[i][j];
-				_topo[i][j] -= deltah;
-				if (_topo[i][j]<0) _topo[i][j] = 0;
-				if (K*sqrt(_flow[i][j])*delt_ax>max) max = K*sqrt(_flow[i][j])*delt_ax;
+				//calculatealongchannel_slope(i, j);
+				CalculateAlongChannelSlope(i, j);
+				deltah = timestep*K*sqrt(flow[i][j])*deltax*slope[i][j];
+				topo[i][j] -= deltah;
+				if (topo[i][j]<0)
+				{
+					topo[i][j] = 0;
+				}
+				if (K*sqrt(flow[i][j])*deltax>max)
+				{
+					max = K*sqrt(flow[i][j])*deltax;
+				}
 			}
+		}
 		time += timestep;
-		if (max > 0.3*delt_ax / timestep)
+		if (max > 0.3*deltax / timestep)
 		{
 			time -= timestep;
 			timestep /= 2.0;
 			for (i = 2; i <= lattice_size_x - 1; i++)
+			{
 				for (j = 2; j <= lattice_size_y - 1; j++)
-					_topo[i][j] = _topoold[i][j] - U*timestep;
+				{
+					topo[i][j] = topoold[i][j] - U*timestep;
+				}
+			}
 		}
 		else
 		{
-			if (max < 0.03*delt_ax / timestep) timestep *= 1.2;
+			if (max < 0.03*deltax / timestep)
+			{
+				timestep *= 1.2;
+			}
 			for (j = 1; j <= lattice_size_y; j++)
+			{
 				for (i = 1; i <= lattice_size_x; i++)
-					_topoold[i][j] = _topo[i][j];
+				{
+					topoold[i][j] = topo[i][j];
+				}
+					
+			}
+
 		}
 		if (time > printinterval)
 		{
-			printinterval += 100;
-			for (i = 1; i <= lattice_size_x; i++)
-				for (j = 1; j <= lattice_size_y; j++)
-				{
-					fprintf(fp1, "%f\n", _topo[i][j]);
-				}
+			char fname[100];
+			sprintf(fname, "erosion_%d.txt", printinterval);
+			PrintState(fname);
+			printinterval += printstep;
 		}
+		std::cout << "Time: " << time << std::endl;
+		
 	}
-	fclose(fp1);
-	return 0;
+
 }
-*/
+
+void StreamPower::PrintState(char* fname)
+{
+	std::ofstream file;
+	file.open(fname);
+	// write arcgrid format
+	file << "ncols " << lattice_size_x << std::endl;
+	file << "nrows " << lattice_size_y << std::endl;
+	file << "xllcorner " << 0 << std::endl;
+	file << "yllcorner " << 0 << std::endl;
+	file << "cellsize " << 1 << std::endl;
+	file << "NODATA_value " << -9999 << std::endl;
+	for (int i = 1; i <= lattice_size_x; i++)
+	{
+		for (int j = 1; j <= lattice_size_y; j++)
+		{
+			file << topo[i][j] << " ";
+		}
+		file << std::endl;
+	}
+	file.close();
+}
 
 float** StreamPower::create_random_field()
 {
@@ -1025,7 +1133,7 @@ void StreamPower::init_diffusion()
 			}
 		}
 	}
-	
+
 }
 
 void StreamPower::InitDiffusion()
@@ -1079,11 +1187,12 @@ void StreamPower::Init()
 
 	U = 1;                // m/kyr
 	K = 0.05;             // kyr^-1
-	int printinterval = 100;
+	printstep = 10;
+	printinterval = printstep;
 	deltax = 200.0;       // m
 	thresh = 0.58*deltax; // 30 deg
 	timestep = 1;         // kyr
-	int duration = 100;
+	duration = 100;
 	SetupGridNeighbors();
 	topo = Matrix(1, lattice_size_x, 1, lattice_size_y);
 	topo2 = Matrix(1, lattice_size_x, 1, lattice_size_y);
@@ -1100,9 +1209,8 @@ void StreamPower::Init()
 	flow8 = Matrix(1, lattice_size_x, 1, lattice_size_y);
 	topovec = Vector(1, lattice_size_x*lattice_size_y);
 	topovecind = IVector(1, lattice_size_x*lattice_size_y);
+	elevation = Array2D<float>(lattice_size_x, lattice_size_y, -9999.0f);
 }
-
-StreamPower::StreamPower() : StreamPower(50, 50) {}
 
 StreamPower::StreamPower(int nx, int ny) : lattice_size_x(nx), lattice_size_y(ny)
 {

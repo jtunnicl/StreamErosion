@@ -88,7 +88,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="StreamPowerUnitTests.cpp" />
-    <ClCompile Include="TopoUnitTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />

@@ -4,6 +4,7 @@
 #include <random>
 #include <numeric>
 #include <algorithm>
+#include "Array2D.hpp"
 
 #define NR_END 1
 #define FREE_ARG char*
@@ -25,7 +26,7 @@ class StreamPower
 {
 public:
 
-	int lattice_size_x, lattice_size_y;
+	int lattice_size_x, lattice_size_y, duration, printinterval, printstep;
 	float U, K, D, timestep, deltax, thresh, thresholdarea;
 
 	// old vars
@@ -35,11 +36,12 @@ public:
 	int *_topovecind, *_iup, *_idown, *_jup, *_jdown;
 
 	// new vars
+	// nodata
 	std::vector<int> iup, idown, jup, jdown, topovecind;
 	std::vector<float> ax, ay, bx, by, cx, cy, ux, uy, rx, ry, topovec;
 	std::vector<std::vector<float>> topo, topoold, topo2, slope, flow, flow1, flow2, flow3, flow4, flow5, flow6, flow7, flow8;
+	Array2D<float> elevation;
 
-	StreamPower();
 	StreamPower(int nx, int ny);
 	~StreamPower();
 
@@ -101,6 +103,17 @@ public:
 
 	void mfd_flowroute(int i, int j); //old implementation
 	void MFDFlowRoute(int i, int j); //new implementation
+
+	// old pit filling
+	void FillInPits();
+	void fillinpitsandflats(int i, int j);
+	void FillInPitsAndFlats(int i, int j);
+
+	// Barnes pit filling
+	void Flood();
+
+	void Start(); 
+	void PrintState(char* fname);
 };
 
 template <typename T> std::vector<T> ArrayToVector(T* a, int size)

@@ -297,9 +297,20 @@ namespace Tests
 					Assert::AreEqual(topo_old[i][j], topo_new[i][j], tolerance);
 				}
 			}
+		}
 
+		[TestMethod]
+		void TestRandomFieldPitFilling()
+		{
+			StreamPower sp = StreamPower(100, 100);
+			sp.Init();
+			std::vector<std::vector<float>> rtopo = sp.CreateRandomField();
+			sp.SetTopo(rtopo);
+			sp.Flood();
+			Assert::IsTrue(true);
 
 		}
+
 
 	};
 }
