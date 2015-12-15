@@ -9,6 +9,8 @@
 
 #include <string>
 #include <cmath>
+#include <cstdlib>
+#include <iostream>
 #include "data_structures.h"
 //#include <sys/time.h>
 //Neighbour directions
@@ -33,6 +35,20 @@ const wchar_t fd[9] = { L'·',L'←',L'↖',L'↑',L'↗',L'→',L'↘',L'↓',L
 const double dr[9] = { 0,1,SQRT2,1,SQRT2,1,SQRT2,1,SQRT2 };
 ///For each D8 direction above, this is the opposite direction
 const int inverse_flow[9] = { 0,5,6,7,8,1,2,3,4 }; //Inverse of a given n from chart below
+
+class Util
+{
+
+public:
+
+	static void Error(std::string msg, int exit_code);
+	static void Warning(std::string msg);
+	static void Info(std::string msg);
+
+};
+
+
+
 /*
 class Timer{
   private:
@@ -88,7 +104,7 @@ class Timer{
 #define omp_get_num_threads() 1
 #endif
 
-#define PROGRESS_BAR "=================================================="
+//#define PROGRESS_BAR "=================================================="
 
 /*
 class ProgressBar

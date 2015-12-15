@@ -37,6 +37,7 @@ public:
 
 	// new vars
 	// nodata
+	float xllcorner, yllcorner, nodata;
 	std::vector<int> iup, idown, jup, jdown, topovecind;
 	std::vector<float> ax, ay, bx, by, cx, cy, ux, uy, rx, ry, topovec;
 	std::vector<std::vector<float>> topo, topoold, topo2, slope, flow, flow1, flow2, flow3, flow4, flow5, flow6, flow7, flow8;
@@ -85,6 +86,8 @@ public:
 
 	float** create_random_field(); // old implementation
 	std::vector<std::vector<float>> CreateRandomField();	// new implementation
+
+	std::vector<std::vector<float>> ReadArcInfoASCIIGrid(char* fname);
 
 	void set_topo(float** t);	// old implementation
 	void SetTopo(std::vector<std::vector<float>> t);	// new implementation

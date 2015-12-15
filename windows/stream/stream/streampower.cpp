@@ -4,7 +4,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <string>
 #include "streampower.h"
+#include "utility.h"
 #include "priority_flood.hpp"
 
 /* old implementation */
@@ -1026,13 +1028,14 @@ void StreamPower::Start()
 			}
 
 		}
-		if (time > printinterval)
-		{
+		//if (time > printinterval)
+		//{
 			char fname[100];
-			sprintf(fname, "erosion_%d.txt", printinterval);
+			//sprintf(fname, "erosion_%d.txt", printinterval);
+			sprintf(fname, "erosion_%f.txt", time);
 			PrintState(fname);
-			printinterval += printstep;
-		}
+			//printinterval += printstep;
+		//}
 		std::cout << "Time: " << time << std::endl;
 		
 	}
@@ -1044,12 +1047,12 @@ void StreamPower::PrintState(char* fname)
 	std::ofstream file;
 	file.open(fname);
 	// write arcgrid format
-	file << "ncols " << lattice_size_x << std::endl;
-	file << "nrows " << lattice_size_y << std::endl;
-	file << "xllcorner " << 0 << std::endl;
-	file << "yllcorner " << 0 << std::endl;
-	file << "cellsize " << 1 << std::endl;
-	file << "NODATA_value " << -9999 << std::endl;
+	file << "ncols " << lattice_size_y << std::endl;
+	file << "nrows " << lattice_size_x << std::endl;
+	file << "xllcorner " << xllcorner << std::endl;
+	file << "yllcorner " << yllcorner << std::endl;
+	file << "cellsize " << deltax << std::endl;
+	file << "NODATA_value " << nodata << std::endl;
 	for (int i = 1; i <= lattice_size_x; i++)
 	{
 		for (int j = 1; j <= lattice_size_y; j++)
@@ -1106,6 +1109,26 @@ void StreamPower::set_topo(float** t)
 
 void StreamPower::SetTopo(std::vector<std::vector<float>> t)
 {
+
+	topo = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	topo2 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	topoold = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	slope = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow1 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow2 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow3 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow4 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow5 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow6 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow7 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	flow8 = Matrix(1, lattice_size_x, 1, lattice_size_y);
+	topovec = Vector(1, lattice_size_x*lattice_size_y);
+	topovecind = IVector(1, lattice_size_x*lattice_size_y);
+	elevation = Array2D<float>(lattice_size_x, lattice_size_y, -9999.0f);
+
+	SetupGridNeighbors();
+
 	for (int i = 1; i <= lattice_size_x; i++)
 	{
 		for (int j = 1; j <= lattice_size_y; j++)
@@ -1116,6 +1139,41 @@ void StreamPower::SetTopo(std::vector<std::vector<float>> t)
 		}
 	}
 	InitDiffusion();
+}
+
+std::vector<std::vector<float>> StreamPower::ReadArcInfoASCIIGrid(char* fname)
+{
+	std::ifstream in(fname);
+	std::vector<std::vector<float>> t;
+	std::string line;
+
+	Util::Warning("Reading DEM without any checks or guarantees ...");
+
+	// read 6 lines of metadata
+	std::string key;
+	in >> key; in >> lattice_size_y; // ncols //NOTE: Pelltier's code was originally written for [x][y] indexing; Saga uses [y][x].
+	in >> key; in >> lattice_size_x; // nrows
+	in >> key; in >> xllcorner;
+	in >> key; in >> yllcorner;
+	in >> key; in >> deltax;
+	in >> key; in >> nodata;
+
+	t = Matrix(1, lattice_size_x, 1, lattice_size_y);
+
+	// read data
+	for (int x = 1; x <= lattice_size_x; x++)
+	{
+		for (int y = 1; y <= lattice_size_y; y++)
+		{
+			in >> t[x][y];
+		}
+	}
+
+	thresh = 0.58*deltax; // 30 deg // This may have to be adjusted for variable deltax (deltax was originally 200)
+
+	Util::Info("Done reading DEM");
+
+	return t;
 }
 
 void StreamPower::init_diffusion()
@@ -1187,29 +1245,17 @@ void StreamPower::Init()
 
 	U = 1;                // m/kyr
 	K = 0.05;             // kyr^-1
-	printstep = 10;
+	printstep = 1;
 	printinterval = printstep;
 	deltax = 200.0;       // m
-	thresh = 0.58*deltax; // 30 deg
+	nodata = -9999.0;
+	xllcorner = 0;
+	yllcorner = 0;
+	thresh = 0.58*deltax; // 30 deg // This may have to be adjusted for variable deltax (deltax was originally 200)
 	timestep = 1;         // kyr
 	duration = 100;
-	SetupGridNeighbors();
-	topo = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	topo2 = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	topoold = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	slope = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	flow = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	flow1 = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	flow2 = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	flow3 = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	flow4 = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	flow5 = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	flow6 = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	flow7 = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	flow8 = Matrix(1, lattice_size_x, 1, lattice_size_y);
-	topovec = Vector(1, lattice_size_x*lattice_size_y);
-	topovecind = IVector(1, lattice_size_x*lattice_size_y);
-	elevation = Array2D<float>(lattice_size_x, lattice_size_y, -9999.0f);
+
+
 }
 
 StreamPower::StreamPower(int nx, int ny) : lattice_size_x(nx), lattice_size_y(ny)

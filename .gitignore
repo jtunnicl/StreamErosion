@@ -77,3 +77,6 @@ Temporary Items
 # Qt
 # =============
 qt/build-*
+
+
+erosion_*.txt

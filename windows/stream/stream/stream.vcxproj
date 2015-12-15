@@ -13,14 +13,13 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="streampower.cpp" />
-    <ClCompile Include="util.cpp" />
+    <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Array2D.hpp" />
     <ClInclude Include="data_structures.h" />
     <ClInclude Include="priority_flood.hpp" />
     <ClInclude Include="streampower.h" />
-    <ClInclude Include="util.h" />
     <ClInclude Include="utility.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
