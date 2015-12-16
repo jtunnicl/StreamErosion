@@ -47,30 +47,53 @@ public:
 	static void Indexx(int n, float* arr, int* indx);	// interface from old to new implementation
 	static std::vector<int> Indexx(std::vector<float>& arr);	// new implementation
 
+	static std::vector<int> Indexx_C(std::vector<float>& arr);	// done
+
 	static void Tridag(float a[], float b[], float c[], float r[], float u[], unsigned long n); // interface from old to new implementation
 	static void Tridag(std::vector<float>& a, std::vector<float>& b, std::vector<float>& c, std::vector<float>& r, std::vector<float>& u, int n); // new implementation
+
+	static void Tridag_C(std::vector<float>& a, std::vector<float>& b, std::vector<float>& c, std::vector<float>& r, std::vector<float>& u, int n); // done
 
 	StreamPower(int nx, int ny);
 	~StreamPower();
 
 	std::vector<std::vector<float>> CreateRandomField();
+	std::vector<std::vector<float>> CreateRandomField_C(); //done
+
 	std::vector<std::vector<float>> ReadArcInfoASCIIGrid(char* fname);
-	std::vector<std::vector<float>> GetTopo();
+	std::vector<std::vector<float>> ReadArcInfoASCIIGrid_C(char* fname); // done
+
+	std::vector<std::vector<float>> GetTopo(); //done
 
 
-	void Init(); // using new vars
+	void Init(); //done
+
 	void SetTopo(std::vector<std::vector<float>> t);
+	void SetTopo_C(std::vector<std::vector<float>> t); // done
+
 	void SetupGridNeighbors(); 
+	void SetupGridNeighbors_C(); // done
 
 	void HillSlopeDiffusionInit();
+	void HillSlopeDiffusionInit_C(); //done
+	
 	void InitDiffusion();
-	void Avalanche(int i, int j);
-	void CalculateAlongChannelSlope(int i, int j); // new implementation
-	void MFDFlowRoute(int i, int j); //new implementation
+	void InitDiffusion_C(); //done
+	
+	void Avalanche(int i, int j); //done
+	
+	void CalculateAlongChannelSlope(int i, int j); //done
+
+	void MFDFlowRoute(int i, int j); //done
+
 	void Flood(); // Barnes pit filling
+	void Flood_C(); //done
+
 	void Start(); 
+	void Start_C(); // done
 
 	void PrintState(char* fname);
+	void PrintState_C(char* fname); // done
 };
 
 template <typename T> std::vector<T> ArrayToVector(T* a, int size)
