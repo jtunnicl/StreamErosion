@@ -13,13 +13,14 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="streampower.cpp" />
-    <ClCompile Include="Topo.cpp" />
-    <ClCompile Include="util.cpp" />
+    <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Array2D.hpp" />
+    <ClInclude Include="data_structures.h" />
+    <ClInclude Include="priority_flood.hpp" />
     <ClInclude Include="streampower.h" />
-    <ClInclude Include="Topo.h" />
-    <ClInclude Include="util.h" />
+    <ClInclude Include="utility.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6A5F9AB6-7CCA-46B9-BA7C-AF84F85903FB}</ProjectGuid>
@@ -65,10 +66,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MSMPI_INC);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(MSMPI_LIB32);</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

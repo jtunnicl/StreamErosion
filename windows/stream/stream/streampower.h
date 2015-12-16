@@ -4,6 +4,7 @@
 #include <random>
 #include <numeric>
 #include <algorithm>
+#include "Array2D.hpp"
 
 #define NR_END 1
 #define FREE_ARG char*
@@ -25,82 +26,51 @@ class StreamPower
 {
 public:
 
-	int lattice_size_x, lattice_size_y;
+	int lattice_size_x, lattice_size_y, duration, printinterval, printstep;
 	float U, K, D, timestep, deltax, thresh, thresholdarea;
 
-	// old vars
-	float **_flow1, **_flow2, **_flow3, **_flow4, **_flow5, **_flow6, **_flow7, **_flow8, **_flow;
-	float **_topo, **_topoold, **_topo2, **_slope, *_ax, *_ay, *_bx, *_by, *_cx, *_cy, *_ux, *_uy;
-	float *_rx, *_ry, *_topovec;
-	int *_topovecind, *_iup, *_idown, *_jup, *_jdown;
-
 	// new vars
+	float xllcorner, yllcorner, nodata;
 	std::vector<int> iup, idown, jup, jdown, topovecind;
 	std::vector<float> ax, ay, bx, by, cx, cy, ux, uy, rx, ry, topovec;
 	std::vector<std::vector<float>> topo, topoold, topo2, slope, flow, flow1, flow2, flow3, flow4, flow5, flow6, flow7, flow8;
+	Array2D<float> elevation;
 
-	StreamPower();
-	StreamPower(int nx, int ny);
-	~StreamPower();
+	static std::vector<float> Vector(int nl, int nh);
+	static std::vector<int> IVector(int nl, int nh);
+	static std::vector<std::vector<float>> Matrix(int nrl, int nrh, int ncl, int nch);			
+	static std::vector<std::vector<int>> IMatrix(int nrl, int nrh, int ncl, int nch);	
 
-	static void free_ivector(int *v, long nl, long nh);
-	static void free_vector(float *v, long nl, long nh);
+	static float Ran3(std::default_random_engine& generator, std::uniform_real_distribution<float>& distribution);
+	static float Gasdev(std::default_random_engine& generator, std::normal_distribution<float>& distribution);
 
-	static float* vector(int nl, int nh);				// old implementation
-	static std::vector<float> Vector(int nl, int nh);	// new implementation
-
-	static int* ivector(int nl, int nh);				// old implementation
-	static std::vector<int> IVector(int nl, int nh);	// new implementation
-
-	static float** matrix(long nrl, long nrh, long ncl, long nch);							// old implementation
-	static std::vector<std::vector<float>> Matrix(int nrl, int nrh, int ncl, int nch);		// new implementation
-
-	static int** imatrix(long nrl, long nrh, long ncl, long nch);							// old implementation
-	static std::vector<std::vector<int>> IMatrix(int nrl, int nrh, int ncl, int nch);		// new implementation
-
-	static float ran3(int* idum);	// old implementation
-	static float Ran3(std::default_random_engine& generator, std::uniform_real_distribution<float>& distribution);	// new implementation
-
-	static float gasdev(int* idnum);	// old implementation
-	static float Gasdev(std::default_random_engine& generator, std::normal_distribution<float>& distribution);	// new implementation
-
-	static void indexx(int n, float* arr, int* indx);	// old implementation
 	static void Indexx(int n, float* arr, int* indx);	// interface from old to new implementation
 	static std::vector<int> Indexx(std::vector<float>& arr);	// new implementation
 
-	static void tridag(float a[], float b[], float c[], float r[], float u[], unsigned long n); // old implementation
 	static void Tridag(float a[], float b[], float c[], float r[], float u[], unsigned long n); // interface from old to new implementation
-	static void Tridag(std::vector<float>& a, std::vector<float>& b, std::vector<float>& c, std::vector<float>& r, std::vector<float>& u, int n); // interface from old to new implementation
+	static void Tridag(std::vector<float>& a, std::vector<float>& b, std::vector<float>& c, std::vector<float>& r, std::vector<float>& u, int n); // new implementation
 
-	void setupgridneighbors(); // old implementation
-	void SetupGridNeighbors(); // new implementation
+	StreamPower(int nx, int ny);
+	~StreamPower();
 
-	void init(); // using old vars
+	std::vector<std::vector<float>> CreateRandomField();
+	std::vector<std::vector<float>> ReadArcInfoASCIIGrid(char* fname);
+	std::vector<std::vector<float>> GetTopo();
+
+
 	void Init(); // using new vars
+	void SetTopo(std::vector<std::vector<float>> t);
+	void SetupGridNeighbors(); 
 
-	void hill_slopediffusioninit();	// old implementation
-	void HillSlopeDiffusionInit();	// new implementation
-
-	float** create_random_field(); // old implementation
-	std::vector<std::vector<float>> CreateRandomField();	// new implementation
-
-	void set_topo(float** t);	// old implementation
-	void SetTopo(std::vector<std::vector<float>> t);	// new implementation
-
-	void init_diffusion(); // old implementation
-	void InitDiffusion(); // new implementation
-
-	float** get_topo(); // old implementation
-	std::vector<std::vector<float>> GetTopo(); // new implementation
-
-	void avalanche(int i, int j); // old implementation
-	void Avalanche(int i, int j); // new implementation
-
-	void calculatealongchannel_slope(int i, int j); // old implementation
+	void HillSlopeDiffusionInit();
+	void InitDiffusion();
+	void Avalanche(int i, int j);
 	void CalculateAlongChannelSlope(int i, int j); // new implementation
-
-	void mfd_flowroute(int i, int j); //old implementation
 	void MFDFlowRoute(int i, int j); //new implementation
+	void Flood(); // Barnes pit filling
+	void Start(); 
+
+	void PrintState(char* fname);
 };
 
 template <typename T> std::vector<T> ArrayToVector(T* a, int size)
