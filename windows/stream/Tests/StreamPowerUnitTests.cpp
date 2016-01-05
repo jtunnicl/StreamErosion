@@ -53,6 +53,48 @@ namespace Tests
 
 		}
 
+		[TestMethod]
+		void TestCIndexing()
+		{
+			
+			int nx = 20;
+			int ny = 20;
+			float tolerance = 1e-6f;
+
+			// fortran indexing
+			StreamPower sp_f = StreamPower(nx, ny); 
+			sp_f.Init();
+			std::vector<std::vector<float>> rt_f = sp_f.CreateRandomField();
+			sp_f.SetTopo(rt_f);
+			sp_f.Start(); 
+			std::vector<std::vector<float>> t_f = sp_f.GetTopo();
+
+			// create matrix using c indexing
+			std::vector<std::vector<float>> rt_c(nx, std::vector<float>(ny));
+			for (int i = 1; i <= nx; i++)
+			{
+				for (int j = 1; j <= ny; j++)
+				{
+					rt_c[i - 1][j - 1] = rt_f[i][j];
+				}
+			}
+
+			// c indexing
+			StreamPower sp_c = StreamPower(nx, ny);
+			sp_f.SetTopo_C(rt_c);
+			sp_f.Start_C();
+			std::vector<std::vector<float>> t_c = sp_c.GetTopo();
+
+			for (int i = 1; i <= nx; i++)
+			{
+				for (int j = 1; j <= ny; j++)
+				{
+					Assert::AreEqual(rt_f[i][j], rt_c[i - 1][j - 1], tolerance);
+				}
+			}
+
+
+		}
 
 	};
 }
