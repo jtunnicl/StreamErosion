@@ -1090,7 +1090,7 @@ void StreamPower::Init()
 	yllcorner = 0;
 	thresh = 0.58*deltax; // 30 deg // This may have to be adjusted for variable deltax (deltax was originally 200)
 	timestep = 1;         // kyr
-	duration = 10;
+	duration = 100;
 
 
 }

@@ -57,9 +57,9 @@ namespace Tests
 		void TestCIndexing()
 		{
 			
-			int nx = 10;
-			int ny = 10;
-			float tolerance = 1e-5f;
+			int nx = 20;
+			int ny = 20;
+			float tolerance = 1e-6f;
 
 			// fortran indexing
 			StreamPower sp_f = StreamPower(nx, ny); 
