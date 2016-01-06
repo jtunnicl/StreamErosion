@@ -2,8 +2,8 @@
 
 int main(int argc, char** argv)
 {
-	int nx = 100;
-	int ny = 100;
+	int nx = 50;
+	int ny = 50;
 	StreamPower sp = StreamPower(nx, ny);
 	sp.Init();
 	//std::vector<std::vector<float>> topo = sp.CreateRandomField();
@@ -13,6 +13,6 @@ int main(int argc, char** argv)
 	
 
 	std::vector<std::vector<float>> topo = sp.CreateRandomField();
-	sp.SetTopo_C(topo);
-	sp.Start_C();
+	sp.SetTopo(topo);
+	sp.Start();
 }

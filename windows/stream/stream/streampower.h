@@ -37,63 +37,35 @@ public:
 	Array2D<float> elevation;
 
 	static std::vector<float> Vector(int nl, int nh);
-	static std::vector<int> IVector(int nl, int nh);
-	static std::vector<std::vector<float>> Matrix(int nrl, int nrh, int ncl, int nch);			
-	static std::vector<std::vector<int>> IMatrix(int nrl, int nrh, int ncl, int nch);	
+	static std::vector<int> IVector(int nl, int nh);	
+	static std::vector<int> Indexx(std::vector<float>& arr);	// new implementation
+	static std::vector<std::vector<float>> Matrix(int nrl, int nrh, int ncl, int nch);
+	static std::vector<std::vector<int>> IMatrix(int nrl, int nrh, int ncl, int nch);
 
 	static float Ran3(std::default_random_engine& generator, std::uniform_real_distribution<float>& distribution);
 	static float Gasdev(std::default_random_engine& generator, std::normal_distribution<float>& distribution);
 
 	static void Indexx(int n, float* arr, int* indx);	// interface from old to new implementation
-	static std::vector<int> Indexx(std::vector<float>& arr);	// new implementation
-
-	static std::vector<int> Indexx_C(std::vector<float>& arr);	// done
-
-	static void Tridag(float a[], float b[], float c[], float r[], float u[], unsigned long n); // interface from old to new implementation
 	static void Tridag(std::vector<float>& a, std::vector<float>& b, std::vector<float>& c, std::vector<float>& r, std::vector<float>& u, int n); // new implementation
 
-	static void Tridag_C(std::vector<float>& a, std::vector<float>& b, std::vector<float>& c, std::vector<float>& r, std::vector<float>& u, int n); // done
+	std::vector<std::vector<float>> CreateRandomField();
+	std::vector<std::vector<float>> ReadArcInfoASCIIGrid(char* fname);
+	std::vector<std::vector<float>> GetTopo(); //done
+
+	void Init(); //done
+	void SetTopo(std::vector<std::vector<float>> t);
+	void SetupGridNeighbors(); 
+	void HillSlopeDiffusionInit();
+	void InitDiffusion();
+	void Avalanche(int i, int j); //done
+	void CalculateAlongChannelSlope(int i, int j); //done
+	void MFDFlowRoute(int i, int j); //done
+	void Flood(); // Barnes pit filling
+	void Start(); 
+	void PrintState(char* fname);
 
 	StreamPower(int nx, int ny);
 	~StreamPower();
-
-	std::vector<std::vector<float>> CreateRandomField();
-	std::vector<std::vector<float>> CreateRandomField_C(); //done
-
-	std::vector<std::vector<float>> ReadArcInfoASCIIGrid(char* fname);
-	std::vector<std::vector<float>> ReadArcInfoASCIIGrid_C(char* fname); // done
-
-	std::vector<std::vector<float>> GetTopo(); //done
-
-
-	void Init(); //done
-
-	void SetTopo(std::vector<std::vector<float>> t);
-	void SetTopo_C(std::vector<std::vector<float>> t); // done
-
-	void SetupGridNeighbors(); 
-	void SetupGridNeighbors_C(); // done
-
-	void HillSlopeDiffusionInit();
-	void HillSlopeDiffusionInit_C(); //done
-	
-	void InitDiffusion();
-	void InitDiffusion_C(); //done
-	
-	void Avalanche(int i, int j); //done
-	
-	void CalculateAlongChannelSlope(int i, int j); //done
-
-	void MFDFlowRoute(int i, int j); //done
-
-	void Flood(); // Barnes pit filling
-	void Flood_C(); //done
-
-	void Start(); 
-	void Start_C(); // done
-
-	void PrintState(char* fname);
-	void PrintState_C(char* fname); // done
 };
 
 template <typename T> std::vector<T> ArrayToVector(T* a, int size)
