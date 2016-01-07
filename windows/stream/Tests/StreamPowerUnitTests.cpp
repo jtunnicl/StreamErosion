@@ -54,20 +54,16 @@ namespace Tests
 		}
 
 		[TestMethod]
-		void TestCIndexing()
+		void TestSetupGridNeighbours_C()
 		{
-			
-			int nx = 20;
-			int ny = 20;
-			float tolerance = 1e-6f;
+			int nx = 10;
+			int ny = 10;
 
 			// fortran indexing
-			StreamPower sp_f = StreamPower(nx, ny); 
+			StreamPower sp_f = StreamPower(nx, ny);
 			sp_f.Init();
 			std::vector<std::vector<float>> rt_f = sp_f.CreateRandomField();
 			sp_f.SetTopo(rt_f);
-			sp_f.Start(); 
-			std::vector<std::vector<float>> t_f = sp_f.GetTopo();
 
 			// create matrix using c indexing
 			std::vector<std::vector<float>> rt_c(nx, std::vector<float>(ny));
@@ -81,20 +77,117 @@ namespace Tests
 
 			// c indexing
 			StreamPower sp_c = StreamPower(nx, ny);
-			sp_f.SetTopo_C(rt_c);
-			sp_f.Start_C();
+			sp_c.AssignVariables_C();
+			sp_c.SetupGridNeighbors_C();
+
+			std::vector<int> iup_f, idown_f, jup_f, jdown_f;
+			std::vector<int> iup_c, idown_c, jup_c, jdown_c;
+
+			iup_f = sp_f.iup;	iup_c = sp_c.iup;
+			jup_f = sp_f.jup;	jup_c = sp_c.jup;
+			idown_f = sp_f.idown;	idown_c = sp_c.idown;
+			jdown_f = sp_f.jdown;	jdown_c = sp_c.jdown;
+
+			for (int i = 1; i <= nx; i++)
+			{
+				Assert::AreEqual(iup_f[i]-1, iup_c[i-1]);
+				Assert::AreEqual(idown_f[i]-1, idown_c[i - 1]);
+			}
+
+			for (int j = 1; j <= ny; j++)
+			{
+				Assert::AreEqual(jup_f[j]-1, jup_c[j - 1]);
+				Assert::AreEqual(jdown_f[j]-1, jdown_c[j - 1]);
+			}
+		}
+		
+
+
+		[TestMethod]
+		void TestSetTopo_C()
+		{
+			int nx = 10;
+			int ny = 10;
+			float tolerance = 1e-6f;
+
+			// fortran indexing
+			StreamPower sp_f = StreamPower(nx, ny);
+			sp_f.Init();
+			std::vector<std::vector<float>> rt_f = sp_f.CreateRandomField();
+			sp_f.SetTopo(rt_f);
+
+			// create matrix using c indexing
+			std::vector<std::vector<float>> rt_c(nx, std::vector<float>(ny));
+			for (int i = 1; i <= nx; i++)
+			{
+				for (int j = 1; j <= ny; j++)
+				{
+					rt_c[i - 1][j - 1] = rt_f[i][j];
+				}
+			}
+
+			// c indexing
+			StreamPower sp_c = StreamPower(nx, ny);
+			sp_c.Init();
+			sp_c.SetTopo_C(rt_c);
+
+			// check that set topo is working correctly
+			std::vector<std::vector<float>> t_f = sp_f.GetTopo();
+			std::vector<std::vector<float>> t_c = sp_c.GetTopo();
+			for (int i = 1; i <= nx; i++)
+			{
+				for (int j = 1; j <= ny; j++)
+				{
+					Assert::AreEqual(t_f[i][j], t_c[i - 1][j - 1], tolerance);
+				}
+			}
+		}
+
+		
+		[TestMethod]
+		void TestCIndexing()
+		{
+			
+			int nx = 10;
+			int ny = 10;
+			float tolerance = 1e-6f;
+
+			// fortran indexing
+			StreamPower sp_f = StreamPower(nx, ny); 
+			sp_f.Init();
+			std::vector<std::vector<float>> rt_f = sp_f.CreateRandomField();
+			sp_f.SetTopo(rt_f);
+
+			// create matrix using c indexing
+			std::vector<std::vector<float>> rt_c(nx, std::vector<float>(ny));
+			for (int i = 1; i <= nx; i++)
+			{
+				for (int j = 1; j <= ny; j++)
+				{
+					rt_c[i - 1][j - 1] = rt_f[i][j];
+				}
+			}
+
+			// c indexing
+			StreamPower sp_c = StreamPower(nx, ny);
+			sp_c.Init();
+			sp_c.SetTopo_C(rt_c);
+
+			// run main loop
+			//sp_f.Start();
+			//sp_c.Start_C();
+			std::vector<std::vector<float>> t_f = sp_f.GetTopo();
 			std::vector<std::vector<float>> t_c = sp_c.GetTopo();
 
 			for (int i = 1; i <= nx; i++)
 			{
 				for (int j = 1; j <= ny; j++)
 				{
-					Assert::AreEqual(rt_f[i][j], rt_c[i - 1][j - 1], tolerance);
+					Assert::AreEqual(t_f[i][j], t_c[i - 1][j - 1], tolerance);
 				}
 			}
-
-
 		}
+		
 
 	};
 }

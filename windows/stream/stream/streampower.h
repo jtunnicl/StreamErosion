@@ -68,6 +68,9 @@ public:
 
 	void Init(); //done
 
+	void AssignVariables_C();
+	void SetInitialValues_C(std::vector<std::vector<float>> t);
+
 	void SetTopo(std::vector<std::vector<float>> t);
 	void SetTopo_C(std::vector<std::vector<float>> t); // done
 

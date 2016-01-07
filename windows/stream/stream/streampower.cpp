@@ -97,6 +97,7 @@ void StreamPower::Tridag(std::vector<float>& a, std::vector<float>& b, std::vect
 
 	gam = Vector(1, n);
 	u[1] = r[1] / (bet = b[1]);
+	//std::cout << "u1: " << u[1] << " r1: " << r[1] << " bet: " << bet << " b1: " << b[1] << "\n";
 	for (j = 2; j <= n; j++)
 	{
 		gam[j] = c[j - 1] / bet;
@@ -107,6 +108,7 @@ void StreamPower::Tridag(std::vector<float>& a, std::vector<float>& b, std::vect
 	{
 		u[j] -= gam[j + 1] * u[j + 1];
 	}
+	//std::cout << "u: " << u[n - 1] << "\n";
 }
 
 void StreamPower::Tridag_C(std::vector<float>& a, std::vector<float>& b, std::vector<float>& c, std::vector<float>& r, std::vector<float>& u, int n)
@@ -116,6 +118,7 @@ void StreamPower::Tridag_C(std::vector<float>& a, std::vector<float>& b, std::ve
 	std::vector<float> gam(n);
 
 	u[0] = r[0] / (bet = b[0]);
+	//std::cout << "u0: " << u[0] << " r0: " << r[0] << " bet: " << bet << " b0: " << b[0] << "\n";
 	for (j = 1; j < n; j++)
 	{
 		gam[j] = c[j - 1] / bet;
@@ -126,6 +129,8 @@ void StreamPower::Tridag_C(std::vector<float>& a, std::vector<float>& b, std::ve
 	{
 		u[j] -= gam[j + 1] * u[j + 1];
 	}
+	//std::cout << "u: " << u[n-2] << "\n";
+	
 }
 
 void StreamPower::SetupGridNeighbors()
@@ -318,6 +323,7 @@ void StreamPower::HillSlopeDiffusionInit()
 	uy = Vector(1, lattice_size_y);
 	rx = Vector(1, lattice_size_x);
 	ry = Vector(1, lattice_size_y);
+
 	D = 10000000.0;
 	count = 0;
 	term1 = D / (deltax*deltax);
@@ -337,6 +343,7 @@ void StreamPower::HillSlopeDiffusionInit()
 			ax[i] = 0;
 		}
 	}
+
 	for (j = 1; j <= lattice_size_y; j++)
 	{
 		ay[j] = -term1;
@@ -353,6 +360,7 @@ void StreamPower::HillSlopeDiffusionInit()
 			ay[j] = 0;
 		}
 	}
+
 	while (count < 5)
 	{
 		count++;
@@ -363,6 +371,7 @@ void StreamPower::HillSlopeDiffusionInit()
 				topo2[i][j] = topo[i][j];
 			}
 		}
+
 		for (i = 1; i <= lattice_size_x; i++)
 		{
 			for (j = 1; j <= lattice_size_y; j++)
@@ -379,6 +388,7 @@ void StreamPower::HillSlopeDiffusionInit()
 				topo[i][j] = uy[j];
 			}
 		}
+
 		for (i = 1; i <= lattice_size_x; i++)
 		{
 			for (j = 1; j <= lattice_size_y; j++)
@@ -386,6 +396,7 @@ void StreamPower::HillSlopeDiffusionInit()
 				topo2[i][j] = topo[i][j];
 			}
 		}
+
 		for (j = 1; j <= lattice_size_y; j++)
 		{
 			for (i = 1; i <= lattice_size_x; i++)
@@ -399,13 +410,25 @@ void StreamPower::HillSlopeDiffusionInit()
 				{
 					rx[i] = topoold[i][j];
 				}
+				
 			}
+
+
+			//std::cout << "j: " << j << "\n";
 			Tridag(ax, bx, cx, rx, ux, lattice_size_x);
+			
+			//if (j == 2)
+			//{
+			//	return;
+			//}
 			for (i = 1; i <= lattice_size_x; i++)
 			{
 				topo[i][j] = ux[i];
+				//std::cout << ux[i] << "\n";
 			}
+			
 		}
+
 	}
 }
 
@@ -424,9 +447,10 @@ void StreamPower::HillSlopeDiffusionInit_C()
 	uy = std::vector<float>(lattice_size_y);
 	rx = std::vector<float>(lattice_size_x);
 	ry = std::vector<float>(lattice_size_y);
+
 	D = 10000000.0;
 	count = 0;
-	term1 = D / (deltax*deltax);
+	term1 = D / (deltax * deltax);
 	for (i = 0; i < lattice_size_x; i++)
 	{
 		ax[i] = -term1;
@@ -434,15 +458,16 @@ void StreamPower::HillSlopeDiffusionInit_C()
 		bx[i] = 4 * term1 + 1;
 		if (i == 0)
 		{
-			bx[i] = 0;
-			cx[i] = 0-1;
+			bx[i] = 1;
+			cx[i] = 0;
 		}
 		if (i == lattice_size_x - 1)
 		{
-			bx[i] = 0;
-			ax[i] = -1;
+			bx[i] = 1;
+			ax[i] = 0;
 		}
 	}
+
 	for (j = 0; j < lattice_size_y; j++)
 	{
 		ay[j] = -term1;
@@ -450,15 +475,16 @@ void StreamPower::HillSlopeDiffusionInit_C()
 		by[j] = 4 * term1 + 1;
 		if (j == 0)
 		{
-			by[j] = 0;
-			cy[j] = -1;
+			by[j] = 1;
+			cy[j] = 0;
 		}
 		if (j == lattice_size_y - 1)
 		{
-			by[j] = 0;
-			ay[j] = -1;
+			by[j] = 1;
+			ay[j] = 0;
 		}
 	}
+
 	while (count < 5)
 	{
 		count++;
@@ -469,6 +495,7 @@ void StreamPower::HillSlopeDiffusionInit_C()
 				topo2[i][j] = topo[i][j];
 			}
 		}
+
 		for (i = 0; i < lattice_size_x; i++)
 		{
 			for (j = 0; j < lattice_size_y; j++)
@@ -487,9 +514,12 @@ void StreamPower::HillSlopeDiffusionInit_C()
 			Tridag_C(ay, by, cy, ry, uy, lattice_size_y);
 			for (j = 0; j < lattice_size_y; j++)
 			{
-				topo[i][j] = uy[j];
+				topo[i][j] = uy[j];		
 			}
 		}
+
+
+
 		for (i = 0; i < lattice_size_x; i++)
 		{
 			for (j = 0; j < lattice_size_y; j++)
@@ -497,6 +527,7 @@ void StreamPower::HillSlopeDiffusionInit_C()
 				topo2[i][j] = topo[i][j];
 			}
 		}
+
 		for (j = 0; j < lattice_size_y; j++)
 		{
 			for (i = 0; i < lattice_size_x; i++)
@@ -510,16 +541,25 @@ void StreamPower::HillSlopeDiffusionInit_C()
 				{
 					rx[i] = topoold[i][j];
 				}
+				
 			}
+
+			//std::cout << "j: " << j << "\n";
 			Tridag_C(ax, bx, cx, rx, ux, lattice_size_x);
+			//if (j == 1)
+			//{
+			//	return;
+			//}
 			for (i = 0; i < lattice_size_x; i++)
 			{
 				topo[i][j] = ux[i];
+				//std::cout << ux[i] << "\n";
 			}
+			
 		}
+
 	}
 }
-
 
 void StreamPower::Avalanche(int i, int j)
 {
@@ -579,8 +619,12 @@ void StreamPower::Start()
 				j--;
 			}
 			//avalanche(i, j);
+
 			Avalanche(i, j);
 		}
+
+
+
 		for (j = 1; j <= lattice_size_y; j++)
 		{
 			for (i = 1; i <= lattice_size_x; i++)
@@ -728,6 +772,8 @@ void StreamPower::Start_C()
 			j = topovecind[t] / lattice_size_x;
 			Avalanche(i, j);
 		}
+
+
 
 		for (j = 0; j < lattice_size_y; j++)
 		{
@@ -935,13 +981,23 @@ void StreamPower::SetTopo(std::vector<std::vector<float>> t)
 			flow[i][j] = 1;
 		}
 	}
+
 	InitDiffusion();
+	return;
 }
 
 void StreamPower::SetTopo_C(std::vector<std::vector<float>> t)
 {
 
-	
+	AssignVariables_C();
+	SetupGridNeighbors_C();
+	SetInitialValues_C(t);
+	InitDiffusion_C();
+
+}
+
+void StreamPower::AssignVariables_C()
+{
 	topo = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
 	topo2 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
 	topoold = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
@@ -951,16 +1007,17 @@ void StreamPower::SetTopo_C(std::vector<std::vector<float>> t)
 	flow2 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
 	flow3 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
 	flow4 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
-	flow5 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y)); 
-	flow6 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y)); 
-	flow7 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y)); 
-	flow8 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y)); 
+	flow5 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	flow6 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	flow7 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	flow8 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
 	topovec = std::vector<float>(lattice_size_x * lattice_size_y);
 	topovecind = std::vector<int>(lattice_size_x * lattice_size_y);
 	elevation = Array2D<float>(lattice_size_x, lattice_size_y, nodata);
+}
 
-	SetupGridNeighbors_C();
-
+void StreamPower::SetInitialValues_C(std::vector<std::vector<float>> t)
+{
 	for (int i = 0; i < lattice_size_x; i++)
 	{
 		for (int j = 0; j < lattice_size_y; j++)
@@ -970,7 +1027,6 @@ void StreamPower::SetTopo_C(std::vector<std::vector<float>> t)
 			flow[i][j] = 1;
 		}
 	}
-	InitDiffusion_C();
 }
 
 std::vector<std::vector<float>> StreamPower::ReadArcInfoASCIIGrid(char* fname)
@@ -1090,7 +1146,7 @@ void StreamPower::Init()
 	yllcorner = 0;
 	thresh = 0.58*deltax; // 30 deg // This may have to be adjusted for variable deltax (deltax was originally 200)
 	timestep = 1;         // kyr
-	duration = 100;
+	duration = 0;
 
 
 }
