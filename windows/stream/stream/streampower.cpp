@@ -623,8 +623,6 @@ void StreamPower::Start()
 			Avalanche(i, j);
 		}
 
-
-
 		for (j = 1; j <= lattice_size_y; j++)
 		{
 			for (i = 1; i <= lattice_size_x; i++)
@@ -680,6 +678,8 @@ void StreamPower::Start()
 			}
 		}
 
+		
+
 		//perform upwind erosion
 		max = 0;
 		for (i = 2; i <= lattice_size_x - 1; i++)
@@ -690,6 +690,7 @@ void StreamPower::Start()
 				CalculateAlongChannelSlope(i, j);
 				deltah = timestep*K*sqrt(flow[i][j])*deltax*slope[i][j];
 				topo[i][j] -= deltah;
+				
 				if (topo[i][j]<0)
 				{
 					topo[i][j] = 0;
@@ -700,10 +701,14 @@ void StreamPower::Start()
 				}
 			}
 		}
+
+		
+
 		time += timestep;
 		if (max > 0.3*deltax / timestep)
 		{
 			time -= timestep;
+			//std::cout << "First time modification" << "\n";
 			timestep /= 2.0;
 			for (i = 2; i <= lattice_size_x - 1; i++)
 			{
@@ -718,6 +723,7 @@ void StreamPower::Start()
 			if (max < 0.03*deltax / timestep)
 			{
 				timestep *= 1.2;
+				//std::cout << "Second time modification" << "\n";
 			}
 			for (j = 1; j <= lattice_size_y; j++)
 			{
@@ -773,8 +779,6 @@ void StreamPower::Start_C()
 			Avalanche(i, j);
 		}
 
-
-
 		for (j = 0; j < lattice_size_y; j++)
 		{
 			for (i = 0; i < lattice_size_x; i++)
@@ -800,8 +804,9 @@ void StreamPower::Start_C()
 		{
 			i = topovecind[t] % lattice_size_x;
 			j = topovecind[t] / lattice_size_x;
+			MFDFlowRoute(i, j);
 		}
-		MFDFlowRoute(i, j);
+		
 
 		// perform uplift
 		for (i = 1; i < lattice_size_x - 1; i++)
@@ -813,6 +818,8 @@ void StreamPower::Start_C()
 			}
 		}
 
+		
+
 		//perform upwind erosion
 		max = 0;
 		for (i = 1; i < lattice_size_x - 1; i++)
@@ -822,6 +829,7 @@ void StreamPower::Start_C()
 				CalculateAlongChannelSlope(i, j);
 				deltah = timestep * K * sqrt(flow[i][j]) * deltax * slope[i][j];
 				topo[i][j] -= deltah;
+				
 				if (topo[i][j] < 0)
 				{
 					topo[i][j] = 0;
@@ -832,11 +840,15 @@ void StreamPower::Start_C()
 				}
 			}
 		}
+
+		
+
 		time += timestep;
 		if (max > 0.3 * deltax / timestep)
 		{
 			time -= timestep;
 			timestep /= 2.0;
+			//std::cout << "First time modification" << "\n";
 			for (i = 1; i < lattice_size_x - 1; i++)
 			{
 				for (j = 1; j < lattice_size_y - 1; j++)
@@ -850,6 +862,7 @@ void StreamPower::Start_C()
 			if (max < 0.03 * deltax / timestep)
 			{
 				timestep *= 1.2;
+				//std::cout << "Second time modification" << "\n";
 			}
 			for (j = 0; j < lattice_size_y; j++)
 			{
@@ -943,6 +956,22 @@ std::vector<std::vector<float>> StreamPower::CreateRandomField_C()
 	for (int i = 0; i < lattice_size_x; i++)
 	{
 		for (int j = 0;  j < lattice_size_y; j++)
+		{
+			mat[i][j] = 0.5 * Gasdev(generator, distribution);
+		}
+	}
+	return mat;
+}
+
+std::vector<std::vector<float>> StreamPower::CreateRandomField_C(unsigned int seed)
+{
+	std::vector<std::vector<float>> mat(lattice_size_x, std::vector<float>(lattice_size_y));
+
+	std::default_random_engine generator (seed);
+	std::normal_distribution<float> distribution(0.0f, 1.0f);
+	for (int i = 0; i < lattice_size_x; i++)
+	{
+		for (int j = 0; j < lattice_size_y; j++)
 		{
 			mat[i][j] = 0.5 * Gasdev(generator, distribution);
 		}
@@ -1133,7 +1162,7 @@ void StreamPower::InitDiffusion_C()
 	}
 }
 
-void StreamPower::Init()
+void StreamPower::Init(int d)
 {
 
 	U = 1;                // m/kyr
@@ -1146,10 +1175,12 @@ void StreamPower::Init()
 	yllcorner = 0;
 	thresh = 0.58*deltax; // 30 deg // This may have to be adjusted for variable deltax (deltax was originally 200)
 	timestep = 1;         // kyr
-	duration = 0;
+	duration = d;
 
 
 }
+
+StreamPower::StreamPower() {}
 
 StreamPower::StreamPower(int nx, int ny) : lattice_size_x(nx), lattice_size_y(ny)
 {

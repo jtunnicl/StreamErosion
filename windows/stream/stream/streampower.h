@@ -54,11 +54,13 @@ public:
 
 	static void Tridag_C(std::vector<float>& a, std::vector<float>& b, std::vector<float>& c, std::vector<float>& r, std::vector<float>& u, int n); // done
 
+	StreamPower();
 	StreamPower(int nx, int ny);
 	~StreamPower();
 
 	std::vector<std::vector<float>> CreateRandomField();
 	std::vector<std::vector<float>> CreateRandomField_C(); //done
+	std::vector<std::vector<float>> CreateRandomField_C(unsigned int seed); //done
 
 	std::vector<std::vector<float>> ReadArcInfoASCIIGrid(char* fname);
 	std::vector<std::vector<float>> ReadArcInfoASCIIGrid_C(char* fname); // done
@@ -66,7 +68,7 @@ public:
 	std::vector<std::vector<float>> GetTopo(); //done
 
 
-	void Init(); //done
+	void Init(int d); //done
 
 	void AssignVariables_C();
 	void SetInitialValues_C(std::vector<std::vector<float>> t);
