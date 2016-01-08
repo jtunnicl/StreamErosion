@@ -37,8 +37,7 @@ public:
 	Array2D<float> elevation;
 
 	static std::vector<float> Vector(int nl, int nh);
-	static std::vector<int> IVector(int nl, int nh);	
-	static std::vector<int> Indexx(std::vector<float>& arr);	// new implementation
+	static std::vector<int> IVector(int nl, int nh);
 	static std::vector<std::vector<float>> Matrix(int nrl, int nrh, int ncl, int nch);
 	static std::vector<std::vector<int>> IMatrix(int nrl, int nrh, int ncl, int nch);
 
@@ -46,26 +45,60 @@ public:
 	static float Gasdev(std::default_random_engine& generator, std::normal_distribution<float>& distribution);
 
 	static void Indexx(int n, float* arr, int* indx);	// interface from old to new implementation
+	static std::vector<int> Indexx(std::vector<float>& arr);	// new implementation
+
+	static std::vector<int> Indexx_C(std::vector<float>& arr);	// done
+
+	static void Tridag(float a[], float b[], float c[], float r[], float u[], unsigned long n); // interface from old to new implementation
 	static void Tridag(std::vector<float>& a, std::vector<float>& b, std::vector<float>& c, std::vector<float>& r, std::vector<float>& u, int n); // new implementation
 
-	std::vector<std::vector<float>> CreateRandomField();
-	std::vector<std::vector<float>> ReadArcInfoASCIIGrid(char* fname);
-	std::vector<std::vector<float>> GetTopo(); //done
+	static void Tridag_C(std::vector<float>& a, std::vector<float>& b, std::vector<float>& c, std::vector<float>& r, std::vector<float>& u, int n); // done
 
-	void Init(); //done
-	void SetTopo(std::vector<std::vector<float>> t);
-	void SetupGridNeighbors(); 
-	void HillSlopeDiffusionInit();
-	void InitDiffusion();
-	void Avalanche(int i, int j); //done
-	void CalculateAlongChannelSlope(int i, int j); //done
-	void MFDFlowRoute(int i, int j); //done
-	void Flood(); // Barnes pit filling
-	void Start(); 
-	void PrintState(char* fname);
-
+	StreamPower();
 	StreamPower(int nx, int ny);
 	~StreamPower();
+
+	std::vector<std::vector<float>> CreateRandomField();
+	std::vector<std::vector<float>> CreateRandomField_C(); //done
+	std::vector<std::vector<float>> CreateRandomField_C(unsigned int seed); //done
+
+	std::vector<std::vector<float>> ReadArcInfoASCIIGrid(char* fname);
+	std::vector<std::vector<float>> ReadArcInfoASCIIGrid_C(char* fname); // done
+
+	std::vector<std::vector<float>> GetTopo(); //done
+
+
+	void Init(int d); //done
+
+	void AssignVariables_C();
+	void SetInitialValues_C(std::vector<std::vector<float>> t);
+
+	void SetTopo(std::vector<std::vector<float>> t);
+	void SetTopo_C(std::vector<std::vector<float>> t); // done
+
+	void SetupGridNeighbors();
+	void SetupGridNeighbors_C(); // done
+
+	void HillSlopeDiffusionInit();
+	void HillSlopeDiffusionInit_C(); //done
+
+	void InitDiffusion();
+	void InitDiffusion_C(); //done
+
+	void Avalanche(int i, int j); //done
+
+	void CalculateAlongChannelSlope(int i, int j); //done
+
+	void MFDFlowRoute(int i, int j); //done
+
+	void Flood(); // Barnes pit filling
+	void Flood_C(); //done
+
+	void Start();
+	void Start_C(); // done
+
+	void PrintState(char* fname);
+	void PrintState_C(char* fname); // done
 };
 
 template <typename T> std::vector<T> ArrayToVector(T* a, int size)
@@ -85,7 +118,7 @@ template <typename T> std::vector<T> ArrayToVector(T* a, int size, bool fortranI
 	{
 		v = std::vector<T>(size + 1);
 	}
-	else 
+	else
 	{
 		v = std::vector<T>(size);
 	}
@@ -124,10 +157,10 @@ template <typename T> std::vector<int> SortFortranIndices(const std::vector<T>& 
 
 	// initialize original index locations
 	std::vector<int> idx(v.size());
-	std::iota(idx.begin()+1, idx.end(), 1);
+	std::iota(idx.begin() + 1, idx.end(), 1);
 
 	// sort indexes based on comparing values in v
-	std::sort(idx.begin()+1, idx.end(), [&v](int i1, int i2) {return v[i1] < v[i2]; });
+	std::sort(idx.begin() + 1, idx.end(), [&v](int i1, int i2) {return v[i1] < v[i2]; });
 
 	return idx;
 }
