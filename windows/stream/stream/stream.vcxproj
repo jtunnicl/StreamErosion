@@ -20,6 +20,7 @@
     <ClInclude Include="data_structures.h" />
     <ClInclude Include="priority_flood.hpp" />
     <ClInclude Include="streampower.h" />
+    <ClInclude Include="Topo.h" />
     <ClInclude Include="utility.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
