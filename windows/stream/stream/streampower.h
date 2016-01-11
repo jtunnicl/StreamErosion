@@ -6,18 +6,6 @@
 #include <algorithm>
 #include "Array2D.hpp"
 
-#define NR_END 1
-#define FREE_ARG char*
-
-#define MBIG 1000000000
-#define MSEED 161803398
-#define MZ 0
-#define FAC (1.0/MBIG)
-
-#define SWAP(a,b) itemp=(a);(a)=(b);(b)=itemp;
-#define M 7
-#define NSTACK 100000
-
 #define sqrt2 1.414213562373f
 #define oneoversqrt2 0.707106781186f
 #define fillincrement 0.01f

@@ -367,7 +367,7 @@ void StreamPower::Start()
 		{
 			for (j = 1; j < lattice_size_y - 1; j++)
 			{
-				topo[i][j] += U * timestep;
+				topo[i][j] += U * timestep; // u(i,j)
 				topoold[i][j] += U * timestep;
 			}
 		}

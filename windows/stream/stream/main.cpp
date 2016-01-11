@@ -16,6 +16,7 @@ int main(int argc, char** argv)
 
 	StreamPower sp = StreamPower(p);
 	sp.SetTopo(sp.ReadArcInfoASCIIGrid(fname));
+
 	sp.Start();
 
 
