@@ -15,7 +15,6 @@ typedef struct StreamErosionModelParameters
 	int timestep;
 	int duration;
 	double K;		// Diffusion kyr^-1
-	double thresh;	// 30 deg
 } Parameters;
 
 class StreamPower
@@ -59,6 +58,7 @@ public:
 	void Flood();
 	void Start();
 	void PrintState(char* fname);
+	void Init(int nx, int ny, float xllcorner, float yllcorner, float deltax, float nodata);
 };
 
 // http://stackover_flow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes

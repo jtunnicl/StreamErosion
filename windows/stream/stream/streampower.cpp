@@ -552,6 +552,19 @@ void StreamPower::InitDiffusion()
 	}
 }
 
+void StreamPower::Init(int nx, int ny, float xllcorner, float yllcorner, float deltax, float nodata)
+{
+	lattice_size_y = ny;
+	lattice_size_x = nx;
+	StreamPower::xllcorner = xllcorner;
+	StreamPower::yllcorner = yllcorner;
+	StreamPower::deltax = deltax;
+	StreamPower::nodata = nodata;
+
+	thresh = 0.58*deltax;
+
+}
+
 std::vector<std::vector<float>> StreamPower::ReadArcInfoASCIIGrid(char* fname)
 {
 	std::ifstream in(fname);
@@ -560,14 +573,19 @@ std::vector<std::vector<float>> StreamPower::ReadArcInfoASCIIGrid(char* fname)
 
 	Util::Warning("Reading DEM without any checks or guarantees ...");
 
+	int nx, ny;
+	float xc, yc, dx, nd;
+
 	// read 6 lines of metadata
 	std::string key;
-	in >> key; in >> lattice_size_y; // ncols //NOTE: Pelltier's code was originally written for [x][y] indexing; Saga uses [y][x].
-	in >> key; in >> lattice_size_x; // nrows
-	in >> key; in >> xllcorner;
-	in >> key; in >> yllcorner;
-	in >> key; in >> deltax;
-	in >> key; in >> nodata;
+	in >> key; in >> nx; // ncols
+	in >> key; in >> ny; // nrows
+	in >> key; in >> xc;
+	in >> key; in >> yc;
+	in >> key; in >> dx;
+	in >> key; in >> nd;
+
+	Init(nx, ny, xc, yc, dx, nd);
 
 	t = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
 
