@@ -15,7 +15,9 @@ int main(int argc, char** argv)
 
 	StreamPower sp = StreamPower(p);
 	sp.SetTopo(sp.ReadArcInfoASCIIGrid(fname));
-	sp.SetU(1.0f); // shoulde also work as: sp.SetU(sp.ReadArcInfoASCIIGrid(ufname));
+	sp.SetU(1.0f);
+	// shoulde also work as: sp.SetU(sp.ReadArcInfoASCIIGrid(ufname));  // WARNING: should have the same metadata as the topo DEM e.g. deltax, nrows, ncols.
+
 	sp.Start();
 
 
