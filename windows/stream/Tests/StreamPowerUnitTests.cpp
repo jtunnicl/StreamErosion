@@ -27,11 +27,11 @@ namespace Tests
 			Parameters p;
 			p.timestep = 1;
 			p.duration = 1;
-			p.U = 1;
 			p.K = 0.05;
 
 			StreamPower sp = StreamPower(p);
 			sp.SetTopo(sp.ReadArcInfoASCIIGrid(finput));
+			sp.SetU(1.0f);
 			sp.Start();
 
 			std::vector<std::vector<float>> tsim = sp.GetTopo();

@@ -14,7 +14,6 @@ typedef struct StreamErosionModelParameters
 {
 	int timestep;
 	int duration;
-	double U;		// Uplift, m/kyr
 	double K;		// Diffusion kyr^-1
 	double thresh;	// 30 deg
 } Parameters;
@@ -25,13 +24,13 @@ public:
 
 	// parameters
 	int lattice_size_x, lattice_size_y, duration, printinterval, printstep;
-	float U, K, D, timestep, deltax, thresh, thresholdarea;
+	float K, D, timestep, deltax, thresh, thresholdarea;
 	float xllcorner, yllcorner, nodata;
 
 	// internal variables
 	std::vector<int> iup, idown, jup, jdown, topovecind;
 	std::vector<float> ax, ay, bx, by, cx, cy, ux, uy, rx, ry, topovec;
-	std::vector<std::vector<float>> topo, topoold, topo2, slope, flow, flow1, flow2, flow3, flow4, flow5, flow6, flow7, flow8;
+	std::vector<std::vector<float>> topo, topoold, topo2, slope, flow, flow1, flow2, flow3, flow4, flow5, flow6, flow7, flow8, U;
 	Array2D<float> elevation;
 
 	static float Ran3(std::default_random_engine& generator, std::uniform_real_distribution<float>& distribution);
@@ -49,6 +48,8 @@ public:
 	void AssignVariables();
 	void SetInitialValues(std::vector<std::vector<float>> t);
 	void SetTopo(std::vector<std::vector<float>> t); 
+	void SetU(std::vector<std::vector<float>> u);
+	void SetU(float u);
 	void SetupGridNeighbors();
 	void HillSlopeDiffusion();
 	void InitDiffusion();

@@ -11,12 +11,11 @@ int main(int argc, char** argv)
 	Parameters p;
 	p.timestep = 1;
 	p.duration = 1;
-	p.U = 1;
 	p.K = 0.05;
 
 	StreamPower sp = StreamPower(p);
 	sp.SetTopo(sp.ReadArcInfoASCIIGrid(fname));
-
+	sp.SetU(1.0f); // shoulde also work as: sp.SetU(sp.ReadArcInfoASCIIGrid(ufname));
 	sp.Start();
 
 

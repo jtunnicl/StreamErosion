@@ -367,8 +367,8 @@ void StreamPower::Start()
 		{
 			for (j = 1; j < lattice_size_y - 1; j++)
 			{
-				topo[i][j] += U * timestep; // u(i,j)
-				topoold[i][j] += U * timestep;
+				topo[i][j] += U[i][j] * timestep; // u(i,j)
+				topoold[i][j] += U[i][j] * timestep;
 			}
 		}
 
@@ -407,7 +407,7 @@ void StreamPower::Start()
 			{
 				for (j = 1; j < lattice_size_y - 1; j++)
 				{
-					topo[i][j] = topoold[i][j] - U * timestep;
+					topo[i][j] = topoold[i][j] - U[i][j] * timestep;
 				}
 			}
 		}
@@ -476,6 +476,30 @@ void StreamPower::SetTopo(std::vector<std::vector<float>> t)
 
 }
 
+void StreamPower::SetU(std::vector<std::vector<float>> u)
+{
+	for (int i = 0; i < lattice_size_x; i++)
+	{
+		for (int j = 0; j < lattice_size_y; j++)
+		{
+			U[i][j] = u[i][j];
+		}
+	}
+
+}
+
+void StreamPower::SetU(float u)
+{
+	for (int i = 0; i < lattice_size_x; i++)
+	{
+		for (int j = 0; j < lattice_size_y; j++)
+		{
+			U[i][j] = u;
+		}
+	}
+
+}
+
 void StreamPower::AssignVariables()
 {
 	topo = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
@@ -491,9 +515,11 @@ void StreamPower::AssignVariables()
 	flow6 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
 	flow7 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
 	flow8 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	U = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
 	topovec = std::vector<float>(lattice_size_x * lattice_size_y);
 	topovecind = std::vector<int>(lattice_size_x * lattice_size_y);
 	elevation = Array2D<float>(lattice_size_x, lattice_size_y, nodata);
+	
 }
 
 void StreamPower::SetInitialValues(std::vector<std::vector<float>> t)
@@ -614,7 +640,6 @@ StreamPower::StreamPower(Parameters p)
 	// user params
 	timestep = p.timestep;
 	duration = p.duration;
-	U = p.U;
 	K = p.K;
 
 }
