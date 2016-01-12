@@ -19,7 +19,6 @@ namespace Tests
 		{
 
 			float tolerance = 1e-3f;
-			int duration = 1;
 
 			char* finput = "test_input.asc";
 			char* foutput = "test_output.asc"; // after duration of 1ky

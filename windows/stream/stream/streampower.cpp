@@ -348,7 +348,9 @@ void StreamPower::Step()
 	}
 
 	Flood();
-
+	//std::cout << elevation(0, 0) << ", " << elevation(10, 10) << ", " << elevation(50, 50) << ", " << "\n";
+	//exit(0);
+		
 	for (j = 0; j < lattice_size_y; j++)
 	{
 		for (i = 0; i < lattice_size_x; i++)
@@ -388,6 +390,10 @@ void StreamPower::Step()
 		{
 			CalculateAlongChannelSlope(i, j);
 			deltah = timestep * K * sqrt(flow[i][j]) * deltax * slope[i][j];
+			
+			//std::cout << i << ", " << j << ", time: " << time << ", dh: " << deltah << ", " << "ts: " << timestep << ", K:" << K << ", sqrtflow " << sqrt(flow[i][j]) << ", dx:" << deltax << ", slope: " << slope[i][j] << "\n";
+			//exit(0);
+
 			topo[i][j] -= deltah;
 
 			if (topo[i][j] < 0)
@@ -565,7 +571,7 @@ void StreamPower::Init(int nx, int ny, float xllcorner, float yllcorner, float d
 	StreamPower::nodata = nodata;
 
 	thresh = 0.58*deltax;
-
+	//std::cout << lattice_size_x << "\n"; 
 }
 
 std::vector<std::vector<float>> StreamPower::ReadArcInfoASCIIGrid(char* fname)
