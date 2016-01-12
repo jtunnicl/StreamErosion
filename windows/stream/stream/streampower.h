@@ -23,7 +23,7 @@ public:
 
 	// parameters
 	int lattice_size_x, lattice_size_y, duration, printinterval, printstep;
-	float K, D, timestep, deltax, thresh, thresholdarea;
+	float K, D, timestep, deltax, thresh, thresholdarea, deltah, time;
 	float xllcorner, yllcorner, nodata;
 
 	// internal variables
@@ -57,6 +57,7 @@ public:
 	void MFDFlowRoute(int i, int j);
 	void Flood();
 	void Start();
+	void Step();
 	void PrintState(char* fname);
 	void Init(int nx, int ny, float xllcorner, float yllcorner, float deltax, float nodata);
 };

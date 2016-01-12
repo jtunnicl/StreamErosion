@@ -305,141 +305,144 @@ void StreamPower::Avalanche(int i, int j)
 
 void StreamPower::Start()
 {
-	float deltah, time, max;
-	int idum, i, j, t, step;
-	time = 0;
-
 	char fname[100];
 	sprintf(fname, "erosion_%d.txt", 0);
 	PrintState(fname);
 
+	time = 0;
 	while (time < duration)
 	{
-		//perform landsliding
-		for (j = 0; j < lattice_size_y; j++)
+		Step();
+	}
+}
+
+void StreamPower::Step()
+{
+	int i, j, t;
+	float max;
+
+	//perform landsliding
+	for (j = 0; j < lattice_size_y; j++)
+	{
+		for (i = 0; i < lattice_size_x; i++)
 		{
-			for (i = 0; i < lattice_size_x; i++)
+			topovec[j * lattice_size_x + i] = topo[i][j];
+		}
+	}
+	topovecind = Indexx(topovec);
+
+	// todo
+	for (int t = 0; t < lattice_size_x * lattice_size_y; t++)
+	{
+		i = topovecind[t] % lattice_size_x;
+		j = topovecind[t] / lattice_size_x;
+		Avalanche(i, j);
+	}
+
+	for (j = 0; j < lattice_size_y; j++)
+	{
+		for (i = 0; i < lattice_size_x; i++)
+		{
+			topoold[i][j] = topo[i][j];
+		}
+	}
+
+	Flood();
+
+	for (j = 0; j < lattice_size_y; j++)
+	{
+		for (i = 0; i < lattice_size_x; i++)
+		{
+			flow[i][j] = 1;
+			topovec[j * lattice_size_x + i] = topo[i][j];
+		}
+	}
+
+	topovecind = Indexx(topovec);
+
+	for (t = lattice_size_x * lattice_size_y - 1; t >= 0; t--)
+	{
+		i = topovecind[t] % lattice_size_x;
+		j = topovecind[t] / lattice_size_x;
+		MFDFlowRoute(i, j);
+	}
+
+
+	// perform uplift
+	for (i = 1; i < lattice_size_x - 1; i++)
+	{
+		for (j = 1; j < lattice_size_y - 1; j++)
+		{
+			topo[i][j] += U[i][j] * timestep; // u(i,j)
+			topoold[i][j] += U[i][j] * timestep;
+		}
+	}
+
+
+
+	//perform upwind erosion
+	max = 0;
+	for (i = 1; i < lattice_size_x - 1; i++)
+	{
+		for (j = 1; j < lattice_size_y - 1; j++)
+		{
+			CalculateAlongChannelSlope(i, j);
+			deltah = timestep * K * sqrt(flow[i][j]) * deltax * slope[i][j];
+			topo[i][j] -= deltah;
+
+			if (topo[i][j] < 0)
 			{
-				topovec[j * lattice_size_x + i] = topo[i][j];
+				topo[i][j] = 0;
+			}
+			if (K * sqrt(flow[i][j]) * deltax > max)
+			{
+				max = K * sqrt(flow[i][j]) * deltax;
 			}
 		}
-		topovecind = Indexx(topovec);
+	}
 
-		// todo
-		for (t = 0; t < lattice_size_x * lattice_size_y; t++)
+
+
+	time += timestep;
+	if (max > 0.3 * deltax / timestep)
+	{
+		time -= timestep;
+		timestep /= 2.0;
+		//std::cout << "First time modification" << "\n";
+		for (i = 1; i < lattice_size_x - 1; i++)
 		{
-			i = topovecind[t] % lattice_size_x;
-			j = topovecind[t] / lattice_size_x;
-			Avalanche(i, j);
+			for (j = 1; j < lattice_size_y - 1; j++)
+			{
+				topo[i][j] = topoold[i][j] - U[i][j] * timestep;
+			}
 		}
-
+	}
+	else
+	{
+		if (max < 0.03 * deltax / timestep)
+		{
+			timestep *= 1.2;
+			//std::cout << "Second time modification" << "\n";
+		}
 		for (j = 0; j < lattice_size_y; j++)
 		{
 			for (i = 0; i < lattice_size_x; i++)
 			{
 				topoold[i][j] = topo[i][j];
 			}
-		}
-
-		Flood();
-
-		for (j = 0; j < lattice_size_y; j++)
-		{
-			for (i = 0; i < lattice_size_x; i++)
-			{
-				flow[i][j] = 1;
-				topovec[j * lattice_size_x + i] = topo[i][j];
-			}
-		}
-
-		topovecind = Indexx(topovec);
-
-		for (t = lattice_size_x * lattice_size_y - 1; t >= 0; t--)
-		{
-			i = topovecind[t] % lattice_size_x;
-			j = topovecind[t] / lattice_size_x;
-			MFDFlowRoute(i, j);
-		}
-
-
-		// perform uplift
-		for (i = 1; i < lattice_size_x - 1; i++)
-		{
-			for (j = 1; j < lattice_size_y - 1; j++)
-			{
-				topo[i][j] += U[i][j] * timestep; // u(i,j)
-				topoold[i][j] += U[i][j] * timestep;
-			}
-		}
-
-
-
-		//perform upwind erosion
-		max = 0;
-		for (i = 1; i < lattice_size_x - 1; i++)
-		{
-			for (j = 1; j < lattice_size_y - 1; j++)
-			{
-				CalculateAlongChannelSlope(i, j);
-				deltah = timestep * K * sqrt(flow[i][j]) * deltax * slope[i][j];
-				topo[i][j] -= deltah;
-
-				if (topo[i][j] < 0)
-				{
-					topo[i][j] = 0;
-				}
-				if (K * sqrt(flow[i][j]) * deltax > max)
-				{
-					max = K * sqrt(flow[i][j]) * deltax;
-				}
-			}
-		}
-
-
-
-		time += timestep;
-		if (max > 0.3 * deltax / timestep)
-		{
-			time -= timestep;
-			timestep /= 2.0;
-			//std::cout << "First time modification" << "\n";
-			for (i = 1; i < lattice_size_x - 1; i++)
-			{
-				for (j = 1; j < lattice_size_y - 1; j++)
-				{
-					topo[i][j] = topoold[i][j] - U[i][j] * timestep;
-				}
-			}
-		}
-		else
-		{
-			if (max < 0.03 * deltax / timestep)
-			{
-				timestep *= 1.2;
-				//std::cout << "Second time modification" << "\n";
-			}
-			for (j = 0; j < lattice_size_y; j++)
-			{
-				for (i = 0; i < lattice_size_x; i++)
-				{
-					topoold[i][j] = topo[i][j];
-				}
-
-			}
 
 		}
-		//if (time > printinterval)
-		//{
-		char fname[100];
-		//sprintf(fname, "erosion_%d.txt", printinterval);
-		sprintf(fname, "erosion_%f.txt", time);
-		PrintState(fname);
-		//printinterval += printstep;
-		//}
-		std::cout << "Time: " << time << std::endl;
 
 	}
-
+	//if (time > printinterval)
+	//{
+	char fname[100];
+	//sprintf(fname, "erosion_%d.txt", printinterval);
+	sprintf(fname, "erosion_%f.txt", time);
+	PrintState(fname);
+	//printinterval += printstep;
+	//}
+	std::cout << "Time: " << time << std::endl;
 }
 
 void StreamPower::PrintState(char* fname)
@@ -654,6 +657,7 @@ StreamPower::StreamPower(Parameters p)
 	nodata = -9999.0;
 	xllcorner = 0;
 	yllcorner = 0;
+	time = 0;
 
 	// user params
 	timestep = p.timestep;
