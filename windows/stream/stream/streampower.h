@@ -23,7 +23,7 @@ public:
 
 	// parameters
 	int lattice_size_x, lattice_size_y, duration, printinterval, printstep;
-	float K, D, timestep, deltax, thresh, thresholdarea, deltah, time;
+	float K, D, timestep, deltax, thresh, thresholdarea, time;
 	float xllcorner, yllcorner, nodata;
 
 	// internal variables

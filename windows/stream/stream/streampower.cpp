@@ -319,7 +319,7 @@ void StreamPower::Start()
 void StreamPower::Step()
 {
 	int i, j, t;
-	float max;
+	float max, deltah;
 
 	//perform landsliding
 	for (j = 0; j < lattice_size_y; j++)
