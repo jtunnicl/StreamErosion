@@ -14,8 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "streamdll", "streamdll\streamdll.vcxproj", "{4E76ED59-BB10-4757-AFDF-FF9AFB567AC7}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -36,14 +34,6 @@ Global
 		{007ADAB4-5A30-4B4D-B53E-265016107BCD}.Release|Win32.ActiveCfg = Release|Win32
 		{007ADAB4-5A30-4B4D-B53E-265016107BCD}.Release|Win32.Build.0 = Release|Win32
 		{007ADAB4-5A30-4B4D-B53E-265016107BCD}.Release|x64.ActiveCfg = Release|Win32
-		{4E76ED59-BB10-4757-AFDF-FF9AFB567AC7}.Debug|Win32.ActiveCfg = Debug|Win32
-		{4E76ED59-BB10-4757-AFDF-FF9AFB567AC7}.Debug|Win32.Build.0 = Debug|Win32
-		{4E76ED59-BB10-4757-AFDF-FF9AFB567AC7}.Debug|x64.ActiveCfg = Debug|x64
-		{4E76ED59-BB10-4757-AFDF-FF9AFB567AC7}.Debug|x64.Build.0 = Debug|x64
-		{4E76ED59-BB10-4757-AFDF-FF9AFB567AC7}.Release|Win32.ActiveCfg = Release|Win32
-		{4E76ED59-BB10-4757-AFDF-FF9AFB567AC7}.Release|Win32.Build.0 = Release|Win32
-		{4E76ED59-BB10-4757-AFDF-FF9AFB567AC7}.Release|x64.ActiveCfg = Release|x64
-		{4E76ED59-BB10-4757-AFDF-FF9AFB567AC7}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

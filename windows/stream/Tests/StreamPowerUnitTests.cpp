@@ -18,10 +18,10 @@ namespace Tests
 		void TestReference()
 		{
 
-			float tolerance = 1e-3f;
+			double tolerance = 1e-3;
 
 			char* finput = "test_input.asc";
-			char* foutput = "test_output.asc"; // after duration of 1ky
+			char* foutput = "test_output_double_win64.asc"; // after duration of 1ky
 
 			Parameters p;
 			p.timestep = 1;
@@ -33,8 +33,8 @@ namespace Tests
 			sp.SetU(1.0f);
 			sp.Start();
 
-			std::vector<std::vector<float>> tsim = sp.GetTopo();
-			std::vector<std::vector<float>> ttest = sp.ReadArcInfoASCIIGrid(foutput);
+			std::vector<std::vector<double>> tsim = sp.GetTopo();
+			std::vector<std::vector<double>> ttest = sp.ReadArcInfoASCIIGrid(foutput);
 
 			for (int i = 0; i < sp.lattice_size_x; i++)
 			{
