@@ -2,7 +2,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <iomanip>
 #include <fstream>
 #include <string>
 
@@ -10,11 +9,11 @@
 #include "utility.h"
 #include "priority_flood.hpp"
 
-void StreamPower::Tridag(std::vector<double>& a, std::vector<double>& b, std::vector<double>& c, std::vector<double>& r, std::vector<double>& u, int n)
+void StreamPower::Tridag(std::vector<float>& a, std::vector<float>& b, std::vector<float>& c, std::vector<float>& r, std::vector<float>& u, int n)
 {
-	int j;
-	double bet;
-	std::vector<double> gam(n);
+	unsigned long j;
+	float bet;
+	std::vector<float> gam(n);
 
 	u[0] = r[0] / (bet = b[0]);
 	for (j = 1; j < n; j++)
@@ -82,48 +81,48 @@ void StreamPower::Flood()
 
 void StreamPower::MFDFlowRoute(int i, int j)
 {
-	double tot;
+	float tot;
 
 	tot = 0;
 	if (topo[i][j] > topo[iup[i]][j])
-		tot += pow(topo[i][j] - topo[iup[i]][j], 1.1);
+		tot += pow(topo[i][j] - topo[iup[i]][j], 1.1f);
 	if (topo[i][j] > topo[idown[i]][j])
-		tot += pow(topo[i][j] - topo[idown[i]][j], 1.1);
+		tot += pow(topo[i][j] - topo[idown[i]][j], 1.1f);
 	if (topo[i][j] > topo[i][jup[j]])
-		tot += pow(topo[i][j] - topo[i][jup[j]], 1.1);
+		tot += pow(topo[i][j] - topo[i][jup[j]], 1.1f);
 	if (topo[i][j] > topo[i][jdown[j]])
-		tot += pow(topo[i][j] - topo[i][jdown[j]], 1.1);
+		tot += pow(topo[i][j] - topo[i][jdown[j]], 1.1f);
 	if (topo[i][j] > topo[iup[i]][jup[j]])
-		tot += pow((topo[i][j] - topo[iup[i]][jup[j]])*oneoversqrt2, 1.1);
+		tot += pow((topo[i][j] - topo[iup[i]][jup[j]])*oneoversqrt2, 1.1f);
 	if (topo[i][j] > topo[iup[i]][jdown[j]])
-		tot += pow((topo[i][j] - topo[iup[i]][jdown[j]])*oneoversqrt2, 1.1);
+		tot += pow((topo[i][j] - topo[iup[i]][jdown[j]])*oneoversqrt2, 1.1f);
 	if (topo[i][j] > topo[idown[i]][jup[j]])
-		tot += pow((topo[i][j] - topo[idown[i]][jup[j]])*oneoversqrt2, 1.1);
+		tot += pow((topo[i][j] - topo[idown[i]][jup[j]])*oneoversqrt2, 1.1f);
 	if (topo[i][j] > topo[idown[i]][jdown[j]])
-		tot += pow((topo[i][j] - topo[idown[i]][jdown[j]])*oneoversqrt2, 1.1);
+		tot += pow((topo[i][j] - topo[idown[i]][jdown[j]])*oneoversqrt2, 1.1f);
 	if (topo[i][j] > topo[iup[i]][j])
-		flow1[i][j] = pow(topo[i][j] - topo[iup[i]][j], 1.1) / tot;
+		flow1[i][j] = pow(topo[i][j] - topo[iup[i]][j], 1.1f) / tot;
 	else flow1[i][j] = 0;
 	if (topo[i][j] > topo[idown[i]][j])
-		flow2[i][j] = pow(topo[i][j] - topo[idown[i]][j], 1.1) / tot;
+		flow2[i][j] = pow(topo[i][j] - topo[idown[i]][j], 1.1f) / tot;
 	else flow2[i][j] = 0;
 	if (topo[i][j] > topo[i][jup[j]])
-		flow3[i][j] = pow(topo[i][j] - topo[i][jup[j]], 1.1) / tot;
+		flow3[i][j] = pow(topo[i][j] - topo[i][jup[j]], 1.1f) / tot;
 	else flow3[i][j] = 0;
 	if (topo[i][j] > topo[i][jdown[j]])
-		flow4[i][j] = pow(topo[i][j] - topo[i][jdown[j]], 1.1) / tot;
+		flow4[i][j] = pow(topo[i][j] - topo[i][jdown[j]], 1.1f) / tot;
 	else flow4[i][j] = 0;
 	if (topo[i][j] > topo[iup[i]][jup[j]])
-		flow5[i][j] = pow((topo[i][j] - topo[iup[i]][jup[j]])*oneoversqrt2, 1.1) / tot;
+		flow5[i][j] = pow((topo[i][j] - topo[iup[i]][jup[j]])*oneoversqrt2, 1.1f) / tot;
 	else flow5[i][j] = 0;
 	if (topo[i][j] > topo[iup[i]][jdown[j]])
-		flow6[i][j] = pow((topo[i][j] - topo[iup[i]][jdown[j]])*oneoversqrt2, 1.1) / tot;
+		flow6[i][j] = pow((topo[i][j] - topo[iup[i]][jdown[j]])*oneoversqrt2, 1.1f) / tot;
 	else flow6[i][j] = 0;
 	if (topo[i][j] > topo[idown[i]][jup[j]])
-		flow7[i][j] = pow((topo[i][j] - topo[idown[i]][jup[j]])*oneoversqrt2, 1.1) / tot;
+		flow7[i][j] = pow((topo[i][j] - topo[idown[i]][jup[j]])*oneoversqrt2, 1.1f) / tot;
 	else flow7[i][j] = 0;
 	if (topo[i][j] > topo[idown[i]][jdown[j]])
-		flow8[i][j] = pow((topo[i][j] - topo[idown[i]][jdown[j]])*oneoversqrt2, 1.1) / tot;
+		flow8[i][j] = pow((topo[i][j] - topo[idown[i]][jdown[j]])*oneoversqrt2, 1.1f) / tot;
 	else flow8[i][j] = 0;
 	flow[iup[i]][j] += flow[i][j] * flow1[i][j];
 	flow[idown[i]][j] += flow[i][j] * flow2[i][j];
@@ -137,7 +136,7 @@ void StreamPower::MFDFlowRoute(int i, int j)
 
 void StreamPower::CalculateAlongChannelSlope(int i, int j)
 {
-	double down;
+	float down;
 
 	down = 0;
 	if (topo[iup[i]][j] - topo[i][j] < down) down = topo[iup[i]][j] - topo[i][j];
@@ -158,18 +157,18 @@ void StreamPower::CalculateAlongChannelSlope(int i, int j)
 void StreamPower::HillSlopeDiffusion()
 {
 	int i, j, count;
-	double term1;
+	float term1;
 
-	ax = std::vector<double>(lattice_size_x);
-	ay = std::vector<double>(lattice_size_y);
-	bx = std::vector<double>(lattice_size_x);
-	by = std::vector<double>(lattice_size_y);
-	cx = std::vector<double>(lattice_size_x);
-	cy = std::vector<double>(lattice_size_y);
-	ux = std::vector<double>(lattice_size_x);
-	uy = std::vector<double>(lattice_size_y);
-	rx = std::vector<double>(lattice_size_x);
-	ry = std::vector<double>(lattice_size_y);
+	ax = std::vector<float>(lattice_size_x);
+	ay = std::vector<float>(lattice_size_y);
+	bx = std::vector<float>(lattice_size_x);
+	by = std::vector<float>(lattice_size_y);
+	cx = std::vector<float>(lattice_size_x);
+	cy = std::vector<float>(lattice_size_y);
+	ux = std::vector<float>(lattice_size_x);
+	uy = std::vector<float>(lattice_size_y);
+	rx = std::vector<float>(lattice_size_x);
+	ry = std::vector<float>(lattice_size_y);
 
 	D = 10000000.0;
 	count = 0;
@@ -307,7 +306,7 @@ void StreamPower::Avalanche(int i, int j)
 void StreamPower::Start()
 {
 	char fname[100];
-	sprintf_s(fname, "erosion_initial.asc");
+	sprintf(fname, "erosion_%d.txt", 0);
 	PrintState(fname);
 
 	time = 0;
@@ -319,10 +318,8 @@ void StreamPower::Start()
 
 void StreamPower::Step()
 {
-
 	int i, j, t;
-	double max, deltah;
-	char fname[100];
+	float max, deltah;
 
 	//perform landsliding
 	for (j = 0; j < lattice_size_y; j++)
@@ -333,8 +330,6 @@ void StreamPower::Step()
 		}
 	}
 	topovecind = Indexx(topovec);
-
-
 
 	// todo
 	for (int t = 0; t < lattice_size_x * lattice_size_y; t++)
@@ -353,7 +348,9 @@ void StreamPower::Step()
 	}
 
 	Flood();
-
+	//std::cout << elevation(0, 0) << ", " << elevation(10, 10) << ", " << elevation(50, 50) << ", " << "\n";
+	//exit(0);
+		
 	for (j = 0; j < lattice_size_y; j++)
 	{
 		for (i = 0; i < lattice_size_x; i++)
@@ -383,6 +380,8 @@ void StreamPower::Step()
 		}
 	}
 
+
+
 	//perform upwind erosion
 	max = 0;
 	for (i = 1; i < lattice_size_x - 1; i++)
@@ -391,7 +390,7 @@ void StreamPower::Step()
 		{
 			CalculateAlongChannelSlope(i, j);
 			deltah = timestep * K * sqrt(flow[i][j]) * deltax * slope[i][j];
-
+			
 			//std::cout << i << ", " << j << ", time: " << time << ", dh: " << deltah << ", " << "ts: " << timestep << ", K:" << K << ", sqrtflow " << sqrt(flow[i][j]) << ", dx:" << deltax << ", slope: " << slope[i][j] << "\n";
 			//exit(0);
 
@@ -443,7 +442,9 @@ void StreamPower::Step()
 	}
 	//if (time > printinterval)
 	//{
-	sprintf_s(fname, "erosion_%f.asc", time);
+	char fname[100];
+	//sprintf(fname, "erosion_%d.txt", printinterval);
+	sprintf(fname, "erosion_%f.txt", time);
 	PrintState(fname);
 	//printinterval += printstep;
 	//}
@@ -465,27 +466,26 @@ void StreamPower::PrintState(char* fname)
 	{
 		for (int j = 0; j < lattice_size_y; j++)
 		{
-			file << std::fixed << std::setprecision(4) << topo[i][j] << " ";
-			//file << std::fixed << std::setprecision(4) << topo[j][i] << " ";
-			//file << topo[i][j] << " ";
+			file << topo[i][j] << " ";
 		}
 		file << std::endl;
 	}
 	file.close();
-	//std::cout << "Written: " << fname << "\n";
 }
 
-void StreamPower::SetTopo(std::vector<std::vector<double>> t)
+void StreamPower::SetTopo(std::vector<std::vector<float>> t)
 {
+	
+	thresh = 0.58*deltax; // this should be somewhere else
 
 	AssignVariables();
 	SetupGridNeighbors();
 	SetInitialValues(t);
-	//InitDiffusion();
+	InitDiffusion();
 
 }
 
-void StreamPower::SetU(std::vector<std::vector<double>> u)
+void StreamPower::SetU(std::vector<std::vector<float>> u)
 {
 	for (int i = 0; i < lattice_size_x; i++)
 	{
@@ -497,7 +497,7 @@ void StreamPower::SetU(std::vector<std::vector<double>> u)
 
 }
 
-void StreamPower::SetU(double u)
+void StreamPower::SetU(float u)
 {
 	for (int i = 0; i < lattice_size_x; i++)
 	{
@@ -511,27 +511,27 @@ void StreamPower::SetU(double u)
 
 void StreamPower::AssignVariables()
 {
-	topo = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	topo2 = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	topoold = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	slope = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	flow = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	flow1 = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	flow2 = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	flow3 = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	flow4 = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	flow5 = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	flow6 = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	flow7 = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	flow8 = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	U = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
-	topovec = std::vector<double>(lattice_size_x * lattice_size_y);
+	topo = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	topo2 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	topoold = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	slope = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	flow = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	flow1 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	flow2 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	flow3 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	flow4 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	flow5 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	flow6 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	flow7 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	flow8 = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	U = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
+	topovec = std::vector<float>(lattice_size_x * lattice_size_y);
 	topovecind = std::vector<int>(lattice_size_x * lattice_size_y);
-	elevation = Array2D<double>(lattice_size_x, lattice_size_y, nodata);
-
+	elevation = Array2D<float>(lattice_size_x, lattice_size_y, nodata);
+	
 }
 
-void StreamPower::SetInitialValues(std::vector<std::vector<double>> t)
+void StreamPower::SetInitialValues(std::vector<std::vector<float>> t)
 {
 	for (int i = 0; i < lattice_size_x; i++)
 	{
@@ -561,7 +561,7 @@ void StreamPower::InitDiffusion()
 	}
 }
 
-void StreamPower::Init(int nx, int ny, double xllcorner, double yllcorner, double deltax, double nodata)
+void StreamPower::Init(int nx, int ny, float xllcorner, float yllcorner, float deltax, float nodata)
 {
 	lattice_size_y = ny;
 	lattice_size_x = nx;
@@ -574,16 +574,16 @@ void StreamPower::Init(int nx, int ny, double xllcorner, double yllcorner, doubl
 	//std::cout << lattice_size_x << "\n"; 
 }
 
-std::vector<std::vector<double>> StreamPower::ReadArcInfoASCIIGrid(char* fname)
+std::vector<std::vector<float>> StreamPower::ReadArcInfoASCIIGrid(char* fname)
 {
 	std::ifstream in(fname);
-	std::vector<std::vector<double>> t;
+	std::vector<std::vector<float>> t;
 	std::string line;
 
 	Util::Warning("Reading DEM without any checks or guarantees ...");
 
 	int nx, ny;
-	double xc, yc, dx, nd;
+	float xc, yc, dx, nd;
 
 	// read 6 lines of metadata
 	std::string key;
@@ -596,7 +596,7 @@ std::vector<std::vector<double>> StreamPower::ReadArcInfoASCIIGrid(char* fname)
 
 	Init(nx, ny, xc, yc, dx, nd);
 
-	t = std::vector<std::vector<double>>(lattice_size_x, std::vector<double>(lattice_size_y));
+	t = std::vector<std::vector<float>>(lattice_size_x, std::vector<float>(lattice_size_y));
 
 	// read data
 	for (int x = 0; x < lattice_size_x; x++)
@@ -612,17 +612,17 @@ std::vector<std::vector<double>> StreamPower::ReadArcInfoASCIIGrid(char* fname)
 	return t;
 }
 
-std::vector<std::vector<double>> StreamPower::GetTopo()
+std::vector<std::vector<float>> StreamPower::GetTopo()
 {
 	return topo;
 }
 
-std::vector<std::vector<double>> StreamPower::CreateRandomField()
+std::vector<std::vector<float>> StreamPower::CreateRandomField()
 {
-	std::vector<std::vector<double>> mat(lattice_size_x, std::vector<double>(lattice_size_y));
+	std::vector<std::vector<float>> mat(lattice_size_x, std::vector<float>(lattice_size_y));
 
 	std::default_random_engine generator;
-	std::normal_distribution<double> distribution(0.0f, 1.0f);
+	std::normal_distribution<float> distribution(0.0f, 1.0f);
 	for (int i = 0; i < lattice_size_x; i++)
 	{
 		for (int j = 0; j < lattice_size_y; j++)
@@ -633,17 +633,17 @@ std::vector<std::vector<double>> StreamPower::CreateRandomField()
 	return mat;
 }
 
-std::vector<int> StreamPower::Indexx(std::vector<double>& arr)
+std::vector<int> StreamPower::Indexx(std::vector<float>& arr)
 {
 	return SortIndices(arr);
 }
 
-double StreamPower::Ran3(std::default_random_engine& generator, std::uniform_real_distribution<double>& distribution)
+float StreamPower::Ran3(std::default_random_engine& generator, std::uniform_real_distribution<float>& distribution)
 {
 	return distribution(generator);
 }
 
-double StreamPower::Gasdev(std::default_random_engine& generator, std::normal_distribution<double>& distribution)
+float StreamPower::Gasdev(std::default_random_engine& generator, std::normal_distribution<float>& distribution)
 {
 	/*
 	Assuming this is the same code from here: http://www.stat.berkeley.edu/~paciorek/diss/code/regression.binomial/gasdev.C

@@ -80,3 +80,13 @@ qt/build-*
 
 
 erosion_*.txt
+*.playlist
+*.exp
+*.lib
+*.mgrd
+*.sdat
+*.sgrd
+*.sprm
+*.sprj
+*.ipdb
+*.iobj

@@ -12,47 +12,39 @@ namespace Tests
 	[TestClass]
 	public ref class StreamPowerUnitTests
 	{
-	public: 
-
-
+	public:
 
 		[TestMethod]
-		void TestArrayToVector()
+		void TestReference()
 		{
-			int size = 5;
-			float farr[5] = {1, 2, 3, 4, 5};
-			std::vector<float> fv = ArrayToVector(farr, size);
-			Assert::AreEqual(farr[0], fv[0]);
-			Assert::AreEqual(farr[4], fv[4]);
-		}
 
-		[TestMethod]
-		void TestVectorToArray()
-		{
-			int size = 5;
-			float farr[5] = {0, 0, 0, 0, 0};
-			std::vector<float> fv = std::vector<float>();
-			for (int i = 0; i < size; i++)
+			double tolerance = 1e-3;
+
+			char* finput = "test_input.asc";
+			char* foutput = "test_output_double_win64.asc"; // after duration of 1ky
+
+			Parameters p;
+			p.timestep = 1;
+			p.duration = 1;
+			p.K = 0.05;
+
+			StreamPower sp = StreamPower(p);
+			sp.SetTopo(sp.ReadArcInfoASCIIGrid(finput));
+			sp.SetU(1.0f);
+			sp.Start();
+
+			std::vector<std::vector<double>> tsim = sp.GetTopo();
+			std::vector<std::vector<double>> ttest = sp.ReadArcInfoASCIIGrid(foutput);
+
+			for (int i = 0; i < sp.lattice_size_x; i++)
 			{
-				fv.push_back(i);
+				for (int j = 0; j < sp.lattice_size_y; j++)
+				{
+					Assert::AreEqual(ttest[i][j], tsim[i][j], tolerance);
+				}
 			}
-			VectorToArray(fv, farr);
-			Assert::AreEqual(fv[0], farr[0]);
-			Assert::AreEqual(fv[4], farr[4]);
-		}
-
-		[TestMethod]
-		void TestRandomFieldPitFilling()
-		{
-			StreamPower sp = StreamPower(100, 100);
-			sp.Init();
-			std::vector<std::vector<float>> rtopo = sp.CreateRandomField();
-			sp.SetTopo(rtopo);
-			sp.Flood();
-			Assert::IsTrue(true);
 
 		}
-
 
 	};
 }
